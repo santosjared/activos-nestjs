@@ -31,11 +31,11 @@ export class AuthService {
             { $set: { updatedAt: new Date() } }
           );
         }
-        // const populateRoles = await user.populate('role')
+        const {password, ...newUser} = user.toObject();
         return {
           access_token,
           refresh_token,
-          userData: { name: user.name, lastName: user.lastName, email: user.email, userId: user._id, role: user.rol },
+          user:newUser
         };
       }
       throw new UnauthorizedException('password incorect')
@@ -49,17 +49,11 @@ export class AuthService {
 
     const user = await this.userService.findOne(query).populate({
       path: 'rol',
-      populate: {
-        path: 'permissions',
-        populate: [
-          { path: 'action' },
-          { path: 'subject' }
-        ]
-      }
+      populate: { path: 'permissions' }
     });
     return user;
-
   }
+  
   async refreshToken(token: string) {
     try {
       const payload = this.jwtService.verify(token);
@@ -77,17 +71,11 @@ export class AuthService {
           { sub: payload.sub },
           { expiresIn: '30d' },
         );
-
+        const {password, ...newUser} = user.toObject();
         return {
           access_token,
           refresh_token,
-          userData: {
-            name: user.name,
-            lastName: user.lastName,
-            email: user.email,
-            userId: user.id,
-            role: user.rol
-          },
+          user:newUser
         };
       }
       throw new BadRequestException('Token no válido');

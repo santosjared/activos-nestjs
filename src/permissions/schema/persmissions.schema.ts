@@ -1,19 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
-import { Actions } from 'src/action/schema/action.schema';
-import { Subjects } from 'src/subject/schema/subject.schema';
-
+import { HydratedDocument } from 'mongoose';
 
 export type PermissionDocument = HydratedDocument<Permission>
 
+export type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete'
+export type Subjects = 'all' | 'usuarios' | 'roles' | 'activos' | 'home' | 'entrega' | 'devolucion'
+
 @Schema()
 export class Permission {
-    @Prop({ type: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'Actions' }] })
+    @Prop()
     action: Actions[]
-    @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Subjects' })
+    @Prop()
     subject: Subjects;
-   
-    _id?: string
 }
 
 export const PermissionsSchema = SchemaFactory.createForClass(Permission);

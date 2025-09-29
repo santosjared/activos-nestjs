@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { Gender } from './gender.schema';
 import { Rol } from 'src/roles/schema/roles.schema';
 
 
@@ -21,18 +20,16 @@ export class Users {
     phone: string
     @Prop()
     profile: string
-    @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Rol', required: true })
-    rol: Rol
+    @Prop({type:[{ type: mongoose.SchemaTypes.ObjectId, ref: 'Rol', required: true }]})
+    rol: Rol[]
     @Prop()
     ci: string
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Gender' })
-    gender: Gender
+    @Prop({ required: true })
+    gender: 'masculino' | 'femenino' | 'Masculino' | 'Femenino' | 'MASCULINO' | 'FEMENINO'
     @Prop({ required: true })
     address: string
-    @Prop()
-    otherGender: string
     @Prop({ type: String, default: 'activo' })
-    status: string
+    status: 'activo' | 'inactivo'
 }
 
 export const UsersSchema = SchemaFactory.createForClass(Users)

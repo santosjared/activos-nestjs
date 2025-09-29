@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsEmail, IsOptional,IsString, Length, Matches, ValidateIf} from 'class-validator';
+import { IsArray, IsEmail, IsOptional, IsString, Length, Matches, ValidateIf } from 'class-validator';
 
-export class CreateUserDto{
+export class CreateUserDto {
 
     @ApiProperty()
     @IsString({ message: 'El campo nombre debe ser una cadena de caracteres de Aa - Zz' })
@@ -45,29 +45,31 @@ export class CreateUserDto{
     @IsString()
     profile: string
 
-    @ApiProperty()
+    @ApiProperty({
+        type: [String],
+        required: false,
+    })
     @IsOptional()
-    @IsString()
-    rol: string
+    @IsArray()
+    @IsString({ each: true })
+    rol: string[];
 
     @ApiProperty()
     @IsString()
     @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
-    ci:String
+    ci: String
     @ApiProperty()
     @IsString()
-    gender:string
+    gender: 'masculino' | 'femenino' | 'Masculino' | 'Femenino' | 'MASCULINO' | 'FEMENINO'
     @ApiProperty()
     @IsString()
     @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
-    address:string
+    address: string
     @ApiProperty()
     @IsOptional()
     @IsString()
-    @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
-    otherGender:string
-    
+
     @IsOptional()
     @IsString()
-    status:string
+    status: 'activo' | 'inactivo'
 }

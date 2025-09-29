@@ -19,14 +19,9 @@ export class UsersController {
     return await this.usersService.findAll(filters);
   }
 
-  @Get('genders')
-  async findAllGender(){
-    return await this.usersService.findAllGender()
-  }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+    return this.usersService.findOne(id);
   }
 
   @Put(':id')

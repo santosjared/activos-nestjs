@@ -12,8 +12,8 @@ export class PermissionsService {
     return await this.permissionService.create(createPermissionDto);
   }
 
-  findAll() {
-    return `This action returns all permissions`;
+  async findAll() {
+    return await this.permissionService.find();
   }
 
   findOne(id: number) {

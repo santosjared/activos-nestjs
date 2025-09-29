@@ -15,7 +15,7 @@ async function bootstrap() {
     .addTag('users')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('inventario', app, documentFactory);
+  SwaggerModule.setup('api', app, documentFactory);
 
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
