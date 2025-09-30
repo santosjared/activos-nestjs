@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument, Mongoose } from "mongoose";
 import { Category } from "./category.schema";
+import { Status } from "./status.schema";
 
 
 export type ActivosDocument = HydratedDocument<Activos>
@@ -16,15 +17,13 @@ export class Activos {
     @Prop()
     price_a: number
     @Prop()
-    lote:string
-    @Prop()
     cantidad:number
     @Prop()
     date_a: string
     @Prop()
     date_e: string
-    @Prop({type:String, default:'disponible'})
-    status: string
+    @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Status', required: true })
+    status: Status
     @Prop()
     imageUrl: string
     @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Category', required: true })

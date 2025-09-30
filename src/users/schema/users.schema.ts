@@ -8,6 +8,8 @@ export type UsersDocument = HydratedDocument<Users>
 @Schema()
 export class Users {
 
+    @Prop()
+    grade: string
     @Prop({ required: true })
     name: string
     @Prop({ required: true })
@@ -24,6 +26,8 @@ export class Users {
     rol: Rol[]
     @Prop()
     ci: string
+    @Prop()
+    exp: string
     @Prop({ required: true })
     gender: 'masculino' | 'femenino' | 'Masculino' | 'Femenino' | 'MASCULINO' | 'FEMENINO'
     @Prop({ required: true })

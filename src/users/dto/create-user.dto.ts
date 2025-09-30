@@ -5,6 +5,11 @@ import { IsArray, IsEmail, IsOptional, IsString, Length, Matches, ValidateIf } f
 export class CreateUserDto {
 
     @ApiProperty()
+    @IsString()
+    @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
+    grade: string
+
+    @ApiProperty()
     @IsString({ message: 'El campo nombre debe ser una cadena de caracteres de Aa - Zz' })
     @Matches(/^[A-Za-z\s]+$/, { message: 'El nombre solo puede contener letras y espacios' })
     @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
@@ -58,6 +63,12 @@ export class CreateUserDto {
     @IsString()
     @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
     ci: String
+
+    @ApiProperty()
+    @IsString()
+    @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
+    exp: string
+
     @ApiProperty()
     @IsString()
     gender: 'masculino' | 'femenino' | 'Masculino' | 'Femenino' | 'MASCULINO' | 'FEMENINO'

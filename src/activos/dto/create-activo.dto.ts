@@ -17,9 +17,6 @@ export class CreateActivoDto {
     @IsNumber()
     price_a: number;
 
-    @IsString()
-    lote: string;
-
     @Type(() => Number)
     @IsNumber()
     cantidad: number;
@@ -38,6 +35,10 @@ export class CreateActivoDto {
 
     @IsString()
     @IsOptional()
+    otherStatus:string
+
+    @IsString()
+    @IsOptional()
     imageUrl: string;
 
     @IsString()
@@ -47,5 +48,9 @@ export class CreateActivoDto {
     @IsString()
     @IsOptional()
     otherCategory:string
+
+    @IsString()
+    @IsOptional()
+    description:string
 
 }

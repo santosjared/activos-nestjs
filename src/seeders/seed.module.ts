@@ -12,6 +12,8 @@ import environment from '../config/environment';
 import getConfig from '../config/environment'
 import { Category, CategorySchema } from 'src/activos/schema/category.schema';
 import { CategorySeed } from './category-seed.service';
+import { Status, StatusSchema } from 'src/activos/schema/status.schema';
+import { StatusSeed } from './status-seed.service';
 
 
 @Module({
@@ -26,9 +28,10 @@ import { CategorySeed } from './category-seed.service';
       { name: Users.name, schema: UsersSchema },
       { name: Rol.name, schema: RolSchema },
       { name: Permission.name, schema: PermissionsSchema },
-      { name: Category.name, schema: CategorySchema }
+      { name: Category.name, schema: CategorySchema },
+      { name: Status.name, schema: StatusSchema }
     ]),
   ],
-  providers: [SeedService, CategorySeed],
+  providers: [SeedService, CategorySeed, StatusSeed],
 })
 export class SeedModule {}

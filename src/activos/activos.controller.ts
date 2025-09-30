@@ -70,6 +70,11 @@ export class ActivosController {
     return await this.activosService.findCategory()
   }
 
+  @Get('status')
+  async findStatus(){
+    return await this.activosService.findStatus()
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.activosService.findOne(+id);
