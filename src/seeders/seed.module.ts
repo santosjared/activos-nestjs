@@ -14,6 +14,8 @@ import { Category, CategorySchema } from 'src/activos/schema/category.schema';
 import { CategorySeed } from './category-seed.service';
 import { Status, StatusSchema } from 'src/activos/schema/status.schema';
 import { StatusSeed } from './status-seed.service';
+import { Location, LocationSchema } from 'src/activos/schema/location.schema';
+import { LocationSeed } from './location-seed.service';
 
 
 @Module({
@@ -29,9 +31,10 @@ import { StatusSeed } from './status-seed.service';
       { name: Rol.name, schema: RolSchema },
       { name: Permission.name, schema: PermissionsSchema },
       { name: Category.name, schema: CategorySchema },
-      { name: Status.name, schema: StatusSchema }
+      { name: Status.name, schema: StatusSchema },
+      { name: Location.name, schema: LocationSchema },
     ]),
   ],
-  providers: [SeedService, CategorySeed, StatusSeed],
+  providers: [SeedService, CategorySeed, StatusSeed, LocationSeed],
 })
 export class SeedModule {}

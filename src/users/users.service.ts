@@ -63,4 +63,8 @@ export class UsersService {
   async up(id: string) {
     return await this.userService.findByIdAndUpdate(id, { status: 'activo' })
   }
+
+  async allUsersActive(){
+    return await this.userService.find({status:'activo'})
+  }
 }

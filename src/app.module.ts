@@ -10,6 +10,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ActivosModule } from './activos/activos.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { EntregaModule } from './entrega/entrega.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -23,6 +24,7 @@ import { join } from 'path';
       rootPath: join(__dirname, '..', 'uploads', 'images'),
       serveRoot: '/images',
     }),
+    EntregaModule,
   ],
 })
 export class AppModule {}

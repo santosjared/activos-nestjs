@@ -2,6 +2,8 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument, Mongoose } from "mongoose";
 import { Category } from "./category.schema";
 import { Status } from "./status.schema";
+import { Location } from "./location.schema";
+import { Users } from "src/users/schema/users.schema";
 
 
 export type ActivosDocument = HydratedDocument<Activos>
@@ -12,12 +14,12 @@ export class Activos {
     code: string
     @Prop()
     name: string
-    @Prop()
-    location: string
+    @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Location', required: true })
+    location: Location
+    @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Users', required: true })
+    responsable:Users
     @Prop()
     price_a: number
-    @Prop()
-    cantidad:number
     @Prop()
     date_a: string
     @Prop()
@@ -29,7 +31,7 @@ export class Activos {
     @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Category', required: true })
     category:Category
     @Prop()
-    otherCategory:String
+    description: string
 }
 
 export const ActivosSchema = SchemaFactory.createForClass(Activos);

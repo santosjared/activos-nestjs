@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateActivoDto } from './dto/create-activo.dto';
 import { UpdateActivoDto } from './dto/update-activo.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -8,12 +8,18 @@ import { FiltrosActivosDto } from './dto/filters-activo.dto';
 import { Category, CategoryDocument } from './schema/category.schema';
 import { parseDate } from 'src/utils/parse-date';
 import { Status, StatusDocument } from './schema/status.schema';
+import { Location, locationDocument } from './schema/location.schema';
+import { Users, UsersDocument } from 'src/users/schema/users.schema';
+import { Entrega, EntregaDocument } from 'src/entrega/schema/entrega.schema';
 
 @Injectable()
 export class ActivosService {
   constructor(@InjectModel(Activos.name) private readonly activosModel: Model<ActivosDocument>,
     @InjectModel(Category.name) private readonly categoryModel: Model<CategoryDocument>,
-    @InjectModel(Status.name) private readonly statusModel: Model<StatusDocument>
+    @InjectModel(Status.name) private readonly statusModel: Model<StatusDocument>,
+    @InjectModel(Location.name) private readonly locationModel: Model<locationDocument>,
+    @InjectModel(Users.name) private readonly UsersModel: Model<UsersDocument>,
+    @InjectModel(Entrega.name) private readonly entregaModel: Model<EntregaDocument>,
   ) { }
   async create(createActivoDto: CreateActivoDto) {
     const data = { ...createActivoDto };
@@ -28,7 +34,12 @@ export class ActivosService {
       data.status = _id.toString();
     }
 
-    return this.activosModel.create(data);
+    if (data.otherLocation) {
+      const { _id } = await this.locationModel.create({ name: data.otherLocation });
+      data.location = _id.toString()
+    }
+
+    return await this.activosModel.create(data);
   }
 
 
@@ -36,13 +47,22 @@ export class ActivosService {
     const { field = '', skip = 0, limit = 10 } = filters;
     const matchedCategory = await this.categoryModel.find({ name: { $regex: field, $options: 'i' } }).select('_id')
     const matchedStatus = await this.statusModel.find({ name: { $regex: field, $options: 'i' } }).select('_id')
+    const matchedLocation = await this.locationModel.find({ name: { $regex: field, $options: 'i' } }).select('_id')
+    const matchedResponsable = await this.UsersModel.find({
+      $or: [
+        { grade: { $regex: field, $options: 'i' } },
+        { name: { $regex: field, $options: 'i' } },
+        { lastName: { $regex: field, $options: 'i' } }
+      ]
+    }).select('_id')
     const query: any = {
       $or: [
         { code: { $regex: field, $options: 'i' } },
         { name: { $regex: field, $options: 'i' } },
-        { location: { $regex: field, $options: 'i' } },
-        { status: { $in: matchedStatus.map(r => r._id) }},
-        { category: { $in: matchedCategory.map(r => r._id) } }
+        { location: { $in: matchedLocation.map(r => r._id) } },
+        { status: { $in: matchedStatus.map(r => r._id) } },
+        { category: { $in: matchedCategory.map(r => r._id) } },
+        { responsable: { $in: matchedResponsable.map(r => r._id) } }
       ],
     };
 
@@ -71,7 +91,75 @@ export class ActivosService {
         { cantidad: numValue },
       );
     }
-    const result = await this.activosModel.find(query).populate('category').populate('status').skip(skip).limit(limit);
+    const result = await this.activosModel.find(query).populate('category').populate('status').populate('location').populate('responsable').skip(skip).limit(limit);
+    const total = await this.activosModel.countDocuments(query);
+
+    return { result, total };
+  }
+
+  async findAvailables(filters: FiltrosActivosDto) {
+    const { field = '', skip = 0, limit = 10 } = filters;
+
+    // Buscar referencias cruzadas
+    const matchedCategory = await this.categoryModel.find({ name: { $regex: field, $options: 'i' } }).select('_id');
+    const matchedStatus = await this.statusModel.find({ name: { $regex: field, $options: 'i' } }).select('_id');
+    const matchedLocation = await this.locationModel.find({ name: { $regex: field, $options: 'i' } }).select('_id');
+    const matchedResponsable = await this.UsersModel.find({
+      $or: [
+        { grade: { $regex: field, $options: 'i' } },
+        { name: { $regex: field, $options: 'i' } },
+        { lastName: { $regex: field, $options: 'i' } }
+      ]
+    }).select('_id');
+
+    // Obtener IDs de activos ya entregados
+    const entregadosIds = await this.entregaModel.distinct('activos');
+
+    // Armar query base
+    const query: any = {
+      _id: { $nin: entregadosIds }, // <-- excluye los activos entregados
+      $or: [
+        { code: { $regex: field, $options: 'i' } },
+        { name: { $regex: field, $options: 'i' } },
+        { location: { $in: matchedLocation.map(r => r._id) } },
+        { status: { $in: matchedStatus.map(r => r._id) } },
+        { category: { $in: matchedCategory.map(r => r._id) } },
+        { responsable: { $in: matchedResponsable.map(r => r._id) } }
+      ]
+    };
+
+    // Filtrado por fecha si se detecta una fecha válida en `field`
+    const inputDate = parseDate(field);
+    if (inputDate) {
+      const startOfDay = new Date(inputDate);
+      startOfDay.setHours(0, 0, 0, 0);
+
+      const endOfDay = new Date(inputDate);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      query.$or.push(
+        { date_a: { $gte: startOfDay, $lte: endOfDay } },
+        { date_e: { $gte: startOfDay, $lte: endOfDay } }
+      );
+    }
+
+    // Filtro si es número (ej. precio)
+    const isNumeric = !isNaN(Number(field));
+    if (isNumeric) {
+      const numValue = Number(field);
+      query.$or.push({ price_a: numValue });
+    }
+
+    // Ejecutar consulta
+    const result = await this.activosModel
+      .find(query)
+      .populate('category')
+      .populate('status')
+      .populate('location')
+      .populate('responsable')
+      .skip(skip)
+      .limit(limit);
+
     const total = await this.activosModel.countDocuments(query);
 
     return { result, total };
@@ -85,16 +173,39 @@ export class ActivosService {
     return await this.statusModel.find()
   }
 
+  async findLocation() {
+    return await this.locationModel.find()
+  }
+
 
   findOne(id: number) {
     return `This action returns a #${id} activo`;
   }
 
-  update(id: number, updateActivoDto: UpdateActivoDto) {
-    return `This action updates a #${id} activo`;
+  async update(id: string, updateActivoDto: UpdateActivoDto) {
+    const data = { ...updateActivoDto };
+
+    if (data.otherCategory?.trim()) {
+      const { _id } = await this.categoryModel.create({ name: data.otherCategory.trim() });
+      data.category = _id.toString();
+    }
+
+    if (data.otherStatus?.trim()) {
+      const { _id } = await this.statusModel.create({ name: data.otherStatus.trim() });
+      data.status = _id.toString();
+    }
+
+    const updated = await this.activosModel.findByIdAndUpdate(id, data, { new: true });
+
+    if (!updated) {
+      throw new NotFoundException(`Activo con ID ${id} no encontrado`);
+    }
+
+    return updated;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} activo`;
+
+  async remove(id: string) {
+    return await this.activosModel.findByIdAndDelete(id);
   }
 }

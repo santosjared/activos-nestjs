@@ -11,15 +11,14 @@ export class CreateActivoDto {
     name: string;
 
     @IsString()
+    responsable: string;
+
+    @IsString()
     location: string;
 
     @Type(() => Number)
     @IsNumber()
     price_a: number;
-
-    @Type(() => Number)
-    @IsNumber()
-    cantidad: number;
 
     @Type(() => Date)
     @IsDate()
@@ -35,7 +34,7 @@ export class CreateActivoDto {
 
     @IsString()
     @IsOptional()
-    otherStatus:string
+    otherStatus: string
 
     @IsString()
     @IsOptional()
@@ -43,14 +42,18 @@ export class CreateActivoDto {
 
     @IsString()
     @IsOptional()
-    category:string
-    
-    @IsString()
-    @IsOptional()
-    otherCategory:string
+    category: string
 
     @IsString()
     @IsOptional()
-    description:string
+    otherCategory: string
+
+    @IsString()
+    @IsOptional()
+    otherLocation: string
+
+    @IsString()
+    @IsOptional()
+    description: string
 
 }

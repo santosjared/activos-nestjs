@@ -19,6 +19,11 @@ export class UsersController {
     return await this.usersService.findAll(filters);
   }
 
+  @Get('all-users')
+  async allUserActive() {
+    return await this.usersService.allUsersActive();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
