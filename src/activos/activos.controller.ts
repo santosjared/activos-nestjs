@@ -39,9 +39,8 @@ export class ActivosController {
           cb(null, uniqueSuffix + extension);
         },
       }),
-      // fileFilter,
       limits: {
-        fileSize: 2 * 1024 * 1024,
+        fileSize: 12 * 1024 * 1024,
       },
     }),
   )
@@ -108,7 +107,7 @@ export class ActivosController {
         },
       }),
       limits: {
-        fileSize: 2 * 1024 * 1024,
+        fileSize: 12 * 1024 * 1024,
       },
     }),
   )

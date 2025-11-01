@@ -10,6 +10,12 @@ export class CreateUserDto {
     grade: string
 
     @ApiProperty()
+    @IsOptional()
+    @IsString()
+    @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
+    otherGrade: string
+
+    @ApiProperty()
     @IsString({ message: 'El campo nombre debe ser una cadena de caracteres de Aa - Zz' })
     @Matches(/^[A-Za-z\s]+$/, { message: 'El nombre solo puede contener letras y espacios' })
     @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)

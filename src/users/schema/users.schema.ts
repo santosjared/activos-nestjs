@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Rol } from 'src/roles/schema/roles.schema';
+import { Grade } from './grade.schema';
 
 
 export type UsersDocument = HydratedDocument<Users>
@@ -8,8 +9,8 @@ export type UsersDocument = HydratedDocument<Users>
 @Schema()
 export class Users {
 
-    @Prop()
-    grade: string
+    @Prop({type:mongoose.SchemaTypes.ObjectId, ref:'Grade'})
+    grade:Grade 
     @Prop({ required: true })
     name: string
     @Prop({ required: true })
@@ -18,11 +19,11 @@ export class Users {
     email: string
     @Prop({ required: true })
     password: string
-    @Prop({ required: true })
+    @Prop()
     phone: string
     @Prop()
     profile: string
-    @Prop({type:[{ type: mongoose.SchemaTypes.ObjectId, ref: 'Rol', required: true }]})
+    @Prop({type:[{ type: mongoose.SchemaTypes.ObjectId, ref: 'Rol' }]})
     rol: Rol[]
     @Prop()
     ci: string

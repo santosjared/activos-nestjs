@@ -11,6 +11,7 @@ import { ActivosModule } from './activos/activos.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { EntregaModule } from './entrega/entrega.module';
+import { ContableModule } from './contable/contable.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -25,6 +26,7 @@ import { EntregaModule } from './entrega/entrega.module';
       serveRoot: '/images',
     }),
     EntregaModule,
+    ContableModule,
   ],
 })
 export class AppModule {}

@@ -1,37 +1,50 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { HydratedDocument, Mongoose } from "mongoose";
-import { Category } from "./category.schema";
-import { Status } from "./status.schema";
-import { Location } from "./location.schema";
-import { Users } from "src/users/schema/users.schema";
-
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
+import mongoose, { HydratedDocument } from 'mongoose'
+import { Category } from './category.schema'
+import { Status } from './status.schema'
+import { Location } from './location.schema'
+import { Users } from 'src/users/schema/users.schema'
+import { SubCategory } from 'src/contable/schema/sub-category.schema'
+import { Contable } from 'src/contable/schema/contable.schema'
 
 export type ActivosDocument = HydratedDocument<Activos>
 
-@Schema()
+@Schema({ timestamps: true })
 export class Activos {
-    @Prop()
-    code: string
-    @Prop()
-    name: string
-    @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Location', required: true })
-    location: Location
-    @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Users', required: true })
-    responsable:Users
-    @Prop()
-    price_a: number
-    @Prop()
-    date_a: string
-    @Prop()
-    date_e: string
-    @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Status', required: true })
-    status: Status
-    @Prop()
-    imageUrl: string
-    @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Category', required: true })
-    category:Category
-    @Prop()
-    description: string
+
+  @Prop({ required: true, minlength: 4, maxlength: 16, trim: true })
+  code: string
+
+  @Prop({ required: true, minlength: 2, maxlength: 50, trim: true })
+  name: string
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Location', required: true })
+  location: Location
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Users', required: true })
+  responsable: Users
+
+  @Prop({ required: true, min: 0 })
+  price_a: number
+
+  @Prop({ type: Date, required: true })
+  date_a: Date
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Status', required: true })
+  status: Status
+
+  @Prop({ trim: true })
+  imageUrl?: string
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Contable', required: true })
+  category: Contable
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'SubCategory' })
+  subcategory?: SubCategory
+
+  @Prop({ minlength: 10, maxlength: 1000 })
+  description?: string
+
 }
 
-export const ActivosSchema = SchemaFactory.createForClass(Activos);
+export const ActivosSchema = SchemaFactory.createForClass(Activos)

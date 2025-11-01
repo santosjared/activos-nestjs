@@ -24,6 +24,16 @@ export class UsersController {
     return await this.usersService.allUsersActive();
   }
 
+  @Get('grades')
+  async grades() {
+    return await this.usersService.grades();
+  }
+
+   @Get('check-email/:email')
+    async checkEmail(@Param('email') email:string){
+      return await this.usersService.checkEmail(email)
+    }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);

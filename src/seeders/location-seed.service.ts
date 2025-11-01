@@ -11,8 +11,14 @@ export class LocationSeed {
     async seed() {
         try {
             const locations = [
-                { name: 'secretaria' },
-                { name: 'bomberos' },
+                { name: 'SECRETARÍA' },
+                { name: 'RELACIONES PÚBLICAS' },
+                { name: 'ASESORIA LEGAL' },
+                { name: 'DIVISIÓN DE RECURSOS HUMANOS' },
+                { name: 'DIVISIÓN DE PLANIFICACIÓN Y OPERACIONES' },
+                { name: 'DIVISIÓN ADMINISTRATIVO' },
+                { name: 'DIVISIÓN PREVENCIÓN, PROTECCIÓN Y SEGURIDAD HUMANA' },
+                { name: 'DIVISIÓN INVESTIGACIÓN TÉCNICA' },
             ]
 
             const addLocation = locations.map((location) => ({

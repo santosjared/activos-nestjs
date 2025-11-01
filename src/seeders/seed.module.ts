@@ -11,11 +11,14 @@ import { SeedService } from './seed.service';
 import environment from '../config/environment';
 import getConfig from '../config/environment'
 import { Category, CategorySchema } from 'src/activos/schema/category.schema';
-import { CategorySeed } from './category-seed.service';
+import { ContableSeed } from './contable-seed.service';
 import { Status, StatusSchema } from 'src/activos/schema/status.schema';
 import { StatusSeed } from './status-seed.service';
 import { Location, LocationSchema } from 'src/activos/schema/location.schema';
 import { LocationSeed } from './location-seed.service';
+import { Grade, GradeSchema } from 'src/users/schema/grade.schema';
+import { GradeSeed } from './grade-seed.service';
+import { Contable, ContableSchema } from 'src/contable/schema/contable.schema';
 
 
 @Module({
@@ -30,11 +33,12 @@ import { LocationSeed } from './location-seed.service';
       { name: Users.name, schema: UsersSchema },
       { name: Rol.name, schema: RolSchema },
       { name: Permission.name, schema: PermissionsSchema },
-      { name: Category.name, schema: CategorySchema },
+      { name: Contable.name, schema: ContableSchema },
       { name: Status.name, schema: StatusSchema },
       { name: Location.name, schema: LocationSchema },
+      { name: Grade.name, schema:GradeSchema }
     ]),
   ],
-  providers: [SeedService, CategorySeed, StatusSeed, LocationSeed],
+  providers: [SeedService, ContableSeed, StatusSeed, LocationSeed, GradeSeed],
 })
 export class SeedModule {}
