@@ -45,6 +45,9 @@ export class Activos {
   @Prop({ minlength: 10, maxlength: 1000 })
   description?: string
 
+  @Prop({type:Boolean, default:true})
+  disponibilidad:boolean
+
 }
 
 export const ActivosSchema = SchemaFactory.createForClass(Activos)

@@ -122,70 +122,80 @@ export class ActivosService {
 
   async findAvailables(filters: FiltrosActivosDto) {
     const { field = '', skip = 0, limit = 10 } = filters;
+      
+      let query: any = {disponibilidad: true };
+    
+    if (field) {
+    const [
+      matchedCategory,
+      matchedStatus,
+      matchedLocation,
+      matchedSub,
+      matchedResponsable
+    ] = await Promise.all([
+      this.categoryModel.find({ name: { $regex: field, $options: 'i' } }).select('_id'),
+      this.statusModel.find({ name: { $regex: field, $options: 'i' } }).select('_id'),
+      this.locationModel.find({ name: { $regex: field, $options: 'i' } }).select('_id'),
+      this.subModel.find({ name: { $regex: field, $options: 'i' } }).select('_id'),
+      this.UsersModel.find({
+        $or: [
+          { name: { $regex: field, $options: 'i' } },
+          { lastName: { $regex: field, $options: 'i' } }
+        ]
+      }).select('_id')
+    ]);
 
-    const matchedCategory = await this.categoryModel.find({ name: { $regex: field, $options: 'i' } }).select('_id');
-    const matchedStatus = await this.statusModel.find({ name: { $regex: field, $options: 'i' } }).select('_id');
-    const matchedLocation = await this.locationModel.find({ name: { $regex: field, $options: 'i' } }).select('_id');
-    const matchedResponsable = await this.UsersModel.find({
-      $or: [
-        { grade: { $regex: field, $options: 'i' } },
-        { name: { $regex: field, $options: 'i' } },
-        { lastName: { $regex: field, $options: 'i' } }
-      ]
-    }).select('_id');
-
-    const entregadosIds = await this.entregaModel.distinct('activos');
-
-    const query: any = {
-      _id: { $nin: entregadosIds },
-      $or: [
-        { code: { $regex: field, $options: 'i' } },
-        { name: { $regex: field, $options: 'i' } },
-        { location: { $in: matchedLocation.map(r => r._id) } },
-        { status: { $in: matchedStatus.map(r => r._id) } },
-        { category: { $in: matchedCategory.map(r => r._id) } },
-        { responsable: { $in: matchedResponsable.map(r => r._id) } }
-      ]
-    };
-
+    query.$or = [
+      { code: { $regex: field, $options: 'i' } },
+      { name: { $regex: field, $options: 'i' } },
+      { description: { $regex: field, $options: 'i' } },
+      { location: { $in: matchedLocation.map(r => r._id) } },
+      { status: { $in: matchedStatus.map(r => r._id) } },
+      { category: { $in: matchedCategory.map(r => r._id) } },
+      { subcategory: { $in: matchedSub.map(r => r._id) } },
+      { responsable: { $in: matchedResponsable.map(r => r._id) } }
+    ];
     const inputDate = parseDate(field);
     if (inputDate) {
       const startOfDay = new Date(inputDate);
       startOfDay.setHours(0, 0, 0, 0);
-
       const endOfDay = new Date(inputDate);
       endOfDay.setHours(23, 59, 59, 999);
-
       query.$or.push(
         { date_a: { $gte: startOfDay, $lte: endOfDay } },
         { date_e: { $gte: startOfDay, $lte: endOfDay } }
       );
     }
-
-    const isNumeric = !isNaN(Number(field));
-    if (isNumeric) {
-      const numValue = Number(field);
+    const numValue = Number(field);
+    if (!isNaN(numValue)) {
       query.$or.push({ price_a: numValue });
     }
+  }
 
-    const result = await this.activosModel
+  const [result, total] = await Promise.all([
+    this.activosModel
       .find(query)
       .populate([
-        { path: 'status' },
-        { path: 'location' },
+        { path: 'status', select: '-__v' },
+        { path: 'location', select: '-__v' },
         {
           path: 'responsable',
-          populate: {
-            path: 'grade'
-          }
+          select: '-__v -password',
+          populate: { path: 'grade', select: '-__v' }
         },
+        { path: 'category', 
+          select: '-__v', 
+          populate: {path:'subcategory', select:'-__v'}
+        },
+        { path: 'subcategory', select: '-__v' }
       ])
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .sort({ createdAt: -1 }),
+    this.activosModel.countDocuments(query)
+  ]);
 
-    const total = await this.activosModel.countDocuments(query);
-
-    return { result, total };
+  return { result, total };
   }
 
   async findCategory() {
