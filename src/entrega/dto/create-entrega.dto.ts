@@ -8,6 +8,7 @@ import {
   MinLength,
   Matches,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreateEntregaDto {
   @IsNotEmpty({ message: 'La fecha de entrega es obligatoria' })
@@ -24,6 +25,7 @@ export class CreateEntregaDto {
   @IsString({ message: 'El id del grado debe ser una cadena de caracteres' })
   grade: string;
 
+  @Transform(({ value }) => value?.trim())
   @IsNotEmpty({ message: 'El nombre del usuario que recibe es obligatorio' })
   @Matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, {
     message: 'El nombre solo puede contener letras y espacios',
@@ -32,6 +34,7 @@ export class CreateEntregaDto {
   @MaxLength(50, { message: 'El nombre no debe superar los 50 caracteres' })
   name: string;
 
+  @Transform(({ value }) => value?.trim())
   @IsNotEmpty({ message: 'El apellido del usuario que recibe es obligatorio' })
   @Matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, {
     message: 'El apellido solo puede contener letras y espacios',
@@ -39,6 +42,10 @@ export class CreateEntregaDto {
   @MinLength(2, { message: 'El apellido debe tener al menos 2 caracteres' })
   @MaxLength(50, { message: 'El apellido no debe superar los 50 caracteres' })
   lastName: string;
+
+  @IsNotEmpty({ message: 'usuario que entrega es obligatorio' })
+  @IsString({ message: 'El id del usuario debe ser una cadena de caracteres' })
+  user_en: string;
 
   @IsNotEmpty({ message: 'Seleccione el lugar donde se entrega el activo' })
   @IsString({ message: 'El id de la ubicación debe ser una cadena de caracteres' })
@@ -53,18 +60,21 @@ export class CreateEntregaDto {
   documentUrl?: string;
 
   @IsOptional()
+  @Transform(({ value }) => value?.trim())
   @IsString({ message: 'El lugar donde se entrega el activo debe ser una cadena de texto' })
   @MinLength(3, { message: 'La ubicación donde se entrega el activo debe tener al menos 3 caracteres' })
   @MaxLength(50, { message: 'La ubicación donde se entrega el activo no debe exceder los 50 caracteres' })
   otherLocation?: string;
 
   @IsOptional()
+  @Transform(({ value }) => value?.trim())
   @IsString({ message: 'El grado debe ser una cadena de texto' })
   @MinLength(2, { message: 'El grado debe tener al menos 2 caracteres' })
   @MaxLength(50, { message: 'El grado no debe exceder los 50 caracteres' })
   otherGrade?: string;
 
   @IsOptional()
+  @Transform(({ value }) => value?.trim())
   @IsString({ message: 'La descripción debe ser una cadena de texto' })
   @MinLength(10, { message: 'La descripción debe tener al menos 10 caracteres' })
   @MaxLength(1000, { message: 'La descripción no debe superar los 1000 caracteres' })

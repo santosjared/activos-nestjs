@@ -70,10 +70,7 @@ export class ActivosController {
     return await this.activosService.findLocation()
   }
 
-  @Get('activos-available')
-  async findAvailables(@Query() filters: FiltrosActivosDto){
-    return await this.activosService.findAvailables(filters)
-  }
+
 
   @Get(':id')
   findOne(@Param('id') id: string) {

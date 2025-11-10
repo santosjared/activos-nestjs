@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { Category, CategoryDocument } from "src/activos/schema/category.schema";
 import { Contable, ContableDocument } from "src/contable/schema/contable.schema";
 
 
@@ -13,7 +12,6 @@ export class ContableSeed {
         try {
             const categories:Contable[] = [
                 { name: 'Muebles y enseres', util:10, subcategory:[] },
-                { name: 'Equipos de oficina', util:10, subcategory:[] },
                 { name: 'Equipos de computación', util:4, subcategory:[] },
                 { name: 'Vehículos', util:5, subcategory:[] }
             ]

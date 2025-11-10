@@ -12,6 +12,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { EntregaModule } from './entrega/entrega.module';
 import { ContableModule } from './contable/contable.module';
+import { DevolucionModule } from './devolucion/devolucion.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -25,8 +26,13 @@ import { ContableModule } from './contable/contable.module';
       rootPath: join(__dirname, '..', 'uploads', 'images'),
       serveRoot: '/images',
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads', 'documents'),
+      serveRoot: '/documents',
+    }),
     EntregaModule,
     ContableModule,
+    DevolucionModule,
   ],
 })
 export class AppModule {}

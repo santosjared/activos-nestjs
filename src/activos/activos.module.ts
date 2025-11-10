@@ -18,7 +18,6 @@ import { SubCategory, SubCategorySchema } from 'src/contable/schema/sub-category
     { name:Status.name, schema:StatusSchema},
     { name:Location.name, schema:LocationSchema},
     { name:Users.name, schema:UsersSchema},
-    { name:Entrega.name, schema:EntregaSchema},
   ])],
   controllers: [ActivosController],
   providers: [ActivosService],
