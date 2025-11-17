@@ -17,11 +17,15 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
 
-  app.useGlobalPipes(new ValidationPipe({
+  app.useGlobalPipes(
+  new ValidationPipe({
     whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true,
-  }));
+    transform: true,         // <── IMPORTANTE
+    transformOptions: {
+      enableImplicitConversion: true, // <── CONVIERTE STRINGS A NÚMEROS
+    },
+  }),
+);
   await app.listen(getConfig().PORT,'0.0.0.0');
 }
 bootstrap();

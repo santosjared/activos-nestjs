@@ -9,6 +9,7 @@ import { Users, UsersSchema } from 'src/users/schema/users.schema';
 import { Entrega, EntregaSchema } from 'src/entrega/schema/entrega.schema';
 import { Contable, ContableSchema } from 'src/contable/schema/contable.schema';
 import { SubCategory, SubCategorySchema } from 'src/contable/schema/sub-category.schema';
+import { CaslModule } from 'src/casl/casl.module';
 
 @Module({
   imports:[MongooseModule.forFeature([
@@ -18,7 +19,9 @@ import { SubCategory, SubCategorySchema } from 'src/contable/schema/sub-category
     { name:Status.name, schema:StatusSchema},
     { name:Location.name, schema:LocationSchema},
     { name:Users.name, schema:UsersSchema},
-  ])],
+  ]),
+  CaslModule
+],
   controllers: [ActivosController],
   providers: [ActivosService],
 })

@@ -42,7 +42,7 @@ export class Activos {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'SubCategory' })
   subcategory?: SubCategory
 
-  @Prop({ minlength: 10, maxlength: 1000 })
+  @Prop()
   description?: string
 
   @Prop({type:Boolean, default:true})

@@ -1,40 +1,43 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
-import { Rol } from 'src/roles/schema/roles.schema';
+import mongoose, { HydratedDocument, Types } from 'mongoose';
 import { Grade } from './grade.schema';
 
 
 export type UsersDocument = HydratedDocument<Users>
 
-@Schema()
+@Schema({timestamps:true, autoIndex: false })
 export class Users {
 
     @Prop({type:mongoose.SchemaTypes.ObjectId, ref:'Grade'})
-    grade:Grade 
+    grade?:Grade 
     @Prop({ required: true })
     name: string
-    @Prop({ required: true })
-    lastName: string
-    @Prop({ unique: true, required: true })
+    @Prop()
+    lastName?: string
+    @Prop()
     email: string
-    @Prop({ required: true })
-    password: string
     @Prop()
-    phone: string
+    phone?: string
     @Prop()
-    profile: string
-    @Prop({type:[{ type: mongoose.SchemaTypes.ObjectId, ref: 'Rol' }]})
-    rol: Rol[]
+    profile?: string
     @Prop()
-    ci: string
+    ci?: string
     @Prop()
-    exp: string
-    @Prop({ required: true })
-    gender: 'masculino' | 'femenino' | 'Masculino' | 'Femenino' | 'MASCULINO' | 'FEMENINO'
-    @Prop({ required: true })
-    address: string
+    exp?: string
+    @Prop()
+    gender?: 'masculino' | 'femenino' | 'Masculino' | 'Femenino' | 'MASCULINO' | 'FEMENINO'
+    @Prop()
+    address?: string
     @Prop({ type: String, default: 'activo' })
-    status: 'activo' | 'inactivo'
+    status?: 'activo' | 'inactivo'
+    @Prop({type:mongoose.SchemaTypes.ObjectId, ref:'Auth'})
+    auth?: Types.ObjectId;
+
+    @Prop({ default: false })
+    isRoot: boolean;
+
+    @Prop({default:'externo'})
+    tipo?:'interno' | 'externo' | 'System'
 }
 
 export const UsersSchema = SchemaFactory.createForClass(Users)

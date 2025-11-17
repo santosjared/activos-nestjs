@@ -1,41 +1,33 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
+import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { CreadencialesAuthDto } from './dto/credenciales-auth.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import { Users, UsersDocument } from 'src/users/schema/users.schema';
 import { JwtService } from '@nestjs/jwt';
-import { SingIn, SingInDocument } from './schema/sing-in.schema';
+import { Auth, AuthDocument } from './schema/auth.schema';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
-  constructor(@InjectModel(Users.name) private readonly userService: Model<UsersDocument>,
-    @InjectModel(SingIn.name) private readonly singIn: Model<SingInDocument>,
-    private jwtService: JwtService
+  constructor(@InjectModel(Auth.name) private readonly authModel: Model<AuthDocument>,
+    private jwtService: JwtService,
+    private configService: ConfigService
   ) { }
-  async login(createAuthDto: CreateAuthDto) {
-    const user = await this.findUser(createAuthDto.email);
-    if (user) {
-      const passwordHash = await bcrypt.compare(createAuthDto.password, user.password);
+  async login(credentialsAuthDto: CreadencialesAuthDto) {
+    const { rememberMe=true, email, password } = credentialsAuthDto;
+    const auth = await this.findCredentials(email);
+    if (auth) {
+      const passwordHash = await bcrypt.compare(password, auth.password);
       if (passwordHash) {
-        const payload = { sub: user._id }
+        const payload = { sub: auth._id }
         const access_token = this.jwtService.sign(payload);
-        const refresh_token = this.jwtService.sign(payload, { expiresIn: '30d' });
-        const isAuthenticated = await this.singIn.findOne({ userId: user._id });
-
-        if (!isAuthenticated) {
-          await this.singIn.create({ userId: user._id });
-        } else {
-          await this.singIn.findOneAndUpdate(
-            { userId: user._id },
-            { $set: { updatedAt: new Date() } }
-          );
-        }
-        const {password, ...newUser} = user.toObject();
+        const refresh_token = this.jwtService.sign(payload, { expiresIn: rememberMe?'30d':'1d', secret:this.configService.get('JWT_REFRESH_SECRET') } );
+        await this.authModel.findByIdAndUpdate(auth._id, { isActive:true})
+        const {password, ...authObj} = auth.toObject();
         return {
           access_token,
           refresh_token,
-          user:newUser
+          user:authObj
         };
       }
       throw new UnauthorizedException('password incorect')
@@ -43,51 +35,40 @@ export class AuthService {
     throw new UnauthorizedException('email incorect')
   }
 
-  async findUser(param: string) {
+  async findCredentials(param: string) {
     const isObjectId = Types.ObjectId.isValid(param);
     const query = isObjectId ? { _id: param } : { email: param };
 
-    const user = await this.userService.findOne(query).populate({
-      path: 'rol',
-      populate: { path: 'permissions' }
-    });
-    return user;
+    const auth = await this.authModel.findOne(query).populate({
+      path: 'roles', select: '-__v -_id -createdAt -updatedAt -isRoot',
+      populate: { path: 'permissions', select: '-__v -_id -isRoot' }
+    }).select('-__v -createdAt -updatedAt -isRoot');
+    return auth;
   }
   
   async refreshToken(token: string) {
     try {
-      const payload = this.jwtService.verify(token);
+      const payload = this.jwtService.verify(token,{ secret:this.configService.get('JWT_REFRESH_SECRET') });
 
-      const getToken = await this.singIn.findOne({ userId: payload.sub });
+      const auth = await this.findCredentials(payload.sub);
 
-      if (!getToken) {
-        throw new BadRequestException('Token no válido');
+      if ( auth && !auth?.isActive) {
+        throw new UnauthorizedException('Token no válido');
       }
-
-      const user = await this.findUser(payload.sub);
-      if (user) {
-        const access_token = this.jwtService.sign({ sub: payload.sub });
-        const refresh_token = this.jwtService.sign(
-          { sub: payload.sub },
-          { expiresIn: '30d' },
-        );
-        const {password, ...newUser} = user.toObject();
-        return {
-          access_token,
-          refresh_token,
-          user:newUser
-        };
-      }
-      throw new BadRequestException('Token no válido');
+      const access_token = this.jwtService.sign({ sub: payload.sub });
+      const {password, ...authObj} = auth?.toObject() || {};
+      return {
+        access_token,
+        user: authObj
+      };
     } catch (e) {
-      console.error('Error en refresco de token: ', e);
-      throw new BadRequestException('Token no válido');
+      throw new UnauthorizedException('Token no válido');
     }
   }
 
-  async logout(userId: string) {
+  async logout(id: string) {
     try {
-      const remove = await this.singIn.findOneAndDelete({ userId });
+      const remove = await this.authModel.findByIdAndUpdate(id, { isActive: false });
 
       if (!remove) {
         throw new NotFoundException('Usuario no encontrado');
@@ -101,5 +82,7 @@ export class AuthService {
     }
   }
 
-
+  findOne(id: string) {
+    return this.authModel.findById(id).select('-password -__v -createdAt -updatedAt');
+  } 
 }

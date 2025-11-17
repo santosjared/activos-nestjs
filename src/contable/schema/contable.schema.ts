@@ -4,16 +4,16 @@ import { SubCategory } from "./sub-category.schema";
 
 export type ContableDocument = HydratedDocument<Contable>
 
-@Schema()
+@Schema({ timestamps: true })
 export class Contable {
     @Prop()
-    name:string
+    name: string
     @Prop()
-    util:number
-    @Prop({type:[{type:mongoose.SchemaTypes.ObjectId, ref:'SubCategory'}]})
-    subcategory:SubCategory[]
+    util: number
+    @Prop({ type: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'SubCategory' }] })
+    subcategory: SubCategory[]
     @Prop()
-    description?:string
+    description?: string
 }
 
 export const ContableSchema = SchemaFactory.createForClass(Contable)

@@ -53,20 +53,17 @@ export class ContableService {
             }
         }
 
-        if (filters.skip && filters.limit) {
-            const result = await this.contableModel.find(query).populate({
-                path: 'subcategory',
-                select: '-__v'
-            })
-                .skip(skip).limit(limit).select('-__v');
+        const result = await this.contableModel.find(query).populate({
+            path:'subcategory',
+            select:'-__v'
+        })
+            .skip(skip)
+            .limit(limit)
+            .select('-__v -subcategory')
+            .sort({ createdAt: -1 });
 
-            const total = await this.contableModel.countDocuments(query)
-            return { result, total }
-        }
-        return await this.contableModel.find().populate({
-                path: 'subcategory',
-                select: '-__v'
-            }).select('-__v')
+        const total = await this.contableModel.countDocuments(query)
+        return { result, total }
     }
     async findSub() {
         return await this.subModel.find()
@@ -115,11 +112,18 @@ export class ContableService {
         return updatedContable;
     }
 
-    async remove(id:string){
+    async findOne(id:string){
+        return await this.contableModel.findById(id).populate({
+            path:'subcategory',
+            select:'-__V'
+        }).select('-__v')
+    }
+
+    async remove(id: string) {
         const contable = await this.contableModel.findById(id)
-        if(!contable) throw new Error('Denuncia no encontrada');
+        if (!contable) throw new Error('Denuncia no encontrada');
         await Promise.all(
-            contable.subcategory.map(async(id)=>{
+            contable.subcategory.map(async (id) => {
                 await this.subModel.findByIdAndDelete(id);
             })
         )

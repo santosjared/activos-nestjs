@@ -1,15 +1,18 @@
-import { IsOptional, IsNumberString, IsString } from 'class-validator';
+import { IsOptional, IsNumber, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
 
-export class FiltrosActivosDto {
+export class FiltersActivoDto {
   @IsOptional()
   @IsString()
   field?: string;
 
   @IsOptional()
-  @IsNumberString()
+  @Type(() => Number)
+  @IsNumber()
   skip?: number;
 
   @IsOptional()
-  @IsNumberString()
+  @Type(() => Number)
+  @IsNumber()
   limit?: number;
 }

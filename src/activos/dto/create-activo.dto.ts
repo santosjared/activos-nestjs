@@ -6,7 +6,8 @@ import {
   IsNotEmpty,
   MinLength,
   MaxLength,
-  IsPositive
+  IsPositive,
+  ValidateIf
 } from 'class-validator'
 import { Type } from 'class-transformer'
 
@@ -70,11 +71,10 @@ export class CreateActivoDto {
   @IsString({ message: 'El lugar donde se encuentra el activo debe ser una cadena de texto' })
   otherLocation?: string
 
-  @IsOptional()
-  @MinLength(10, { message: 'La descripción debe tener al menos 10 caracteres' })
-  @MaxLength(1000, { message: 'La descripción no debe superar los 1000 caracteres' })
-  @IsString({ message: 'La descripción debe ser una cadena de texto' })
-  description?: string
+ @ValidateIf(o => o.description && o.description.trim() !== '')
+     @MinLength(10, { message: 'La descripción debe tener al menos 10 caracteres' })
+     @MaxLength(1000, { message: 'La descripción no debe superar los 1000 caracteres' })
+     description?: string;
 
   @IsOptional()
   @Type(() => Date)

@@ -10,6 +10,7 @@ import { Users, UsersSchema } from 'src/users/schema/users.schema';
 import { Entrega, EntregaSchema } from 'src/entrega/schema/entrega.schema';
 import { Grade, GradeSchema } from 'src/users/schema/grade.schema';
 import { LocationSchema, Location } from 'src/activos/schema/location.schema';
+import { Devolucion, DevolucionSchema } from './schema/devolucion.schema';
 
 @Module({
    imports:[MongooseModule.forFeature([
@@ -20,7 +21,9 @@ import { LocationSchema, Location } from 'src/activos/schema/location.schema';
         { name:Location.name, schema:LocationSchema},
         { name:Users.name, schema:UsersSchema},
         { name:Entrega.name, schema:EntregaSchema},
-        { name:Grade.name, schema:GradeSchema},])
+        { name:Grade.name, schema:GradeSchema},
+        { name:Devolucion.name, schema:DevolucionSchema },
+     ])
    ],
   controllers: [DevolucionController],
   providers: [DevolucionService],

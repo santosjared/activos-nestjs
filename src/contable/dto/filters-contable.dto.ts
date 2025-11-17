@@ -1,4 +1,5 @@
-import { IsOptional, IsNumberString, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class FiltersContableDto {
   @IsOptional()
@@ -6,10 +7,12 @@ export class FiltersContableDto {
   field?: string;
 
   @IsOptional()
-  @IsNumberString()
+  @Type(() => Number)
+  @IsNumber()
   skip?: number;
 
   @IsOptional()
-  @IsNumberString()
+  @Type(() => Number)
+  @IsNumber()
   limit?: number;
 }

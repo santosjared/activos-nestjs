@@ -1,4 +1,5 @@
-import { IsOptional, IsNumberString, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsOptional, IsString, IsNumber } from 'class-validator';
 
 export class FiltersEntregaDto {
   @IsOptional()
@@ -6,14 +7,12 @@ export class FiltersEntregaDto {
   field?: string;
 
   @IsOptional()
-  @IsNumberString()
+  @Type(() => Number)
+  @IsNumber()
   skip?: number;
 
   @IsOptional()
-  @IsNumberString()
+  @Type(() => Number)
+  @IsNumber()
   limit?: number;
-
-  @IsOptional()
-  @IsString()
-  id?:string
 }

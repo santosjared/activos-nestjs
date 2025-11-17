@@ -10,6 +10,7 @@ import { Users, UsersSchema } from 'src/users/schema/users.schema';
 import { LocationSchema, Location} from 'src/activos/schema/location.schema';
 import { Entrega, EntregaSchema } from './schema/entrega.schema';
 import { Grade, GradeSchema } from 'src/users/schema/grade.schema';
+import { CaslModule } from 'src/casl/casl.module';
 
 @Module({
    imports:[MongooseModule.forFeature([
@@ -21,7 +22,9 @@ import { Grade, GradeSchema } from 'src/users/schema/grade.schema';
       { name:Users.name, schema:UsersSchema},
       { name:Entrega.name, schema:EntregaSchema},
       { name:Grade.name, schema:GradeSchema},
-    ])],
+    ]),
+    CaslModule
+  ],
   controllers: [EntregaController],
   providers: [EntregaService],
 })

@@ -1,15 +1,18 @@
-import { IsOptional, IsNumberString, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsOptional, IsString, IsNumber } from 'class-validator';
 
 export class FiltersDevolucionDto {
   @IsOptional()
-  @IsString()
-  field?: string;
-
-  @IsOptional()
-  @IsNumberString()
-  skip?: number;
-
-  @IsOptional()
-  @IsNumberString()
-  limit?: number;
+   @IsString()
+   field?: string;
+ 
+   @IsOptional()
+   @Type(() => Number)
+   @IsNumber()
+   skip?: number;
+ 
+   @IsOptional()
+   @Type(() => Number)
+   @IsNumber()
+   limit?: number;
 }

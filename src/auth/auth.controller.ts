@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { CreadencialesAuthDto } from './dto/credenciales-auth.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { RefresTokenDto } from './dto/refresh-token.dto';
 
@@ -12,7 +11,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post()
-  async create(@Body() createAuthDto: CreateAuthDto) {
+  async create(@Body() createAuthDto: CreadencialesAuthDto) {
     return this.authService.login(createAuthDto);
   }
   @Post('refresh-token')

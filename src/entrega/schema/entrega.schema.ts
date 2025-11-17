@@ -15,12 +15,8 @@ export class Entrega  {
     date:string
     @Prop()
     time:string
-    @Prop({type:mongoose.SchemaTypes.ObjectId, ref:'Grade'})
-    grade:Grade
-    @Prop()
-    name:string
-    @Prop()
-    lastName:string
+    @Prop({type:mongoose.SchemaTypes.ObjectId, ref:'Users'})
+    user_rec:Users
     @Prop({type:mongoose.SchemaTypes.ObjectId, ref:'Users'})
     user_en:Users
     @Prop({type:mongoose.SchemaTypes.ObjectId, ref:'Location'})
@@ -31,6 +27,8 @@ export class Entrega  {
     documentUrl?:string
     @Prop()
     description?:string
+    // @Prop({default:false})
+    // devuelto:boolean
 }
 
 export const EntregaSchema = SchemaFactory.createForClass(Entrega);

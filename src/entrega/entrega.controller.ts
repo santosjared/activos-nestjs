@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, UseInterceptors, UploadedFile, Query, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseInterceptors, UploadedFile, Query, Put, UseGuards } from '@nestjs/common';
 import { EntregaService } from './entrega.service';
 import { CreateEntregaDto } from './dto/create-entrega.dto';
 import { UpdateEntregaDto } from './dto/update-entrega.dto';
@@ -8,11 +8,16 @@ import { existsSync, mkdirSync } from 'fs';
 import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { FiltersEntregaDto } from './dto/filters-activo.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
+import { PermissionsGuard } from 'src/casl/guards/permissions.guard';
+import { CheckAbilities } from 'src/casl/decorators/permission.decorator'
 
 @Controller('entregas')
 export class EntregaController {
   constructor(private readonly entregaService: EntregaService) { }
 
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @CheckAbilities({ action: 'create', subject: 'entrega' })
   @UseInterceptors(
     FileInterceptor('document', {
       storage: diskStorage({
@@ -49,40 +54,55 @@ export class EntregaController {
     return this.entregaService.create(createEntregaDto);
   }
 
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Get()
   findAll(@Query() filters: FiltersEntregaDto) {
     return this.entregaService.findAll(filters);
   }
 
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Get('location')
   locations() {
     return this.entregaService.locations();
   }
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Get('grades')
   grades() {
     return this.entregaService.grades();
   }
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Get('categories')
   categories() {
     return this.entregaService.categories();
   }
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Get('subcategories')
   subcategories() {
     return this.entregaService.subcategories();
   }
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Get('status')
   status() {
     return this.entregaService.status();
   }
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Get('activos-available')
   async findAvailables(@Query() filters: FiltersEntregaDto) {
     return await this.entregaService.findAvailables(filters)
   }
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Get('code')
+  async getCode() {
+    return await this.entregaService.generateUniqueCode()
+  }
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.entregaService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return await this.entregaService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @CheckAbilities({ action: 'update', subject: 'entrega' })
   @UseInterceptors(
     FileInterceptor('document', {
       storage: diskStorage({
@@ -113,12 +133,16 @@ export class EntregaController {
       },
     }),
   )
+
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Put(':id')
   update(@Param('id') id: string, @Body() updateEntregaDto: UpdateEntregaDto, @UploadedFile() file: Express.Multer.File) {
-     updateEntregaDto.documentUrl = file?.filename || ''
+    updateEntregaDto.documentUrl = file?.filename || ''
     return this.entregaService.update(id, updateEntregaDto);
   }
 
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @CheckAbilities({ action: 'delete', subject: 'entrega' })
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.entregaService.remove(id);

@@ -27,7 +27,7 @@ export class SubcategoriaDto {
 
     @IsOptional()
     @IsString()
-    _id?:string
+    _id?: string
 }
 
 export class CreateContableDto {
@@ -49,8 +49,9 @@ export class CreateContableDto {
     @Type(() => SubcategoriaDto)
     subcategory?: SubcategoriaDto[]
 
-    @IsOptional()
-    @MinLength(10, { message: 'La descripción debe tener al menos 3 caracteres' })
-    @MaxLength(1000, { message: 'La descripción no debe superar los 1000 caracteres' })
-    description: string
+    @ValidateIf(o => o.description && o.description.trim() !== '')
+    @MinLength(10, { message: 'La descripción debe tener al menos 10 caracteres' })
+    @MaxLength(500, { message: 'La descripción no debe superar los 500 caracteres' })
+    description?: string;
+
 }

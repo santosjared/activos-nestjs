@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
-import { PermissionsModule } from './permissions/permissions.module';
 import { ConfigModule } from '@nestjs/config';
 import environment from './config/environment';
 import getConfig from './config/environment'
@@ -20,8 +19,10 @@ import { DevolucionModule } from './devolucion/devolucion.module';
     load:[environment]
     
   }),
-  MongooseModule.forRoot(getConfig().MONGO_URI), 
-    AuthModule, UsersModule, RolesModule, PermissionsModule, ActivosModule,
+  MongooseModule.forRoot(getConfig().MONGO_URI,{
+  autoIndex: false,
+}), 
+    AuthModule, UsersModule, RolesModule, ActivosModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads', 'images'),
       serveRoot: '/images',

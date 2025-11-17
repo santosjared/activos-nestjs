@@ -13,6 +13,7 @@ import { locationDocument, Location } from 'src/activos/schema/location.schema';
 import { Users, UsersDocument } from 'src/users/schema/users.schema';
 import { Grade, GradeDocument } from 'src/users/schema/grade.schema';
 import { parseDate } from 'src/utils/parse-date';
+import { Devolucion, DevolucionDocument } from './schema/devolucion.schema';
 
 @Injectable()
 export class DevolucionService {
@@ -24,77 +25,130 @@ export class DevolucionService {
     @InjectModel(Location.name) private readonly locationModel: Model<locationDocument>,
     @InjectModel(Users.name) private readonly usersModel: Model<UsersDocument>,
     @InjectModel(Grade.name) private readonly gradeModel: Model<GradeDocument>,
-    @InjectModel(SubCategory.name) private readonly subCategoryModel: Model<SubCateGoryDocument>
+    @InjectModel(SubCategory.name) private readonly subCategoryModel: Model<SubCateGoryDocument>,
+    @InjectModel(Devolucion.name) private readonly devolucionModel:Model<DevolucionDocument>
   ) { }
-  create(createDevolucionDto: CreateDevolucionDto) {
-    return 'This action adds a new devolucion';
+  async create(createDevolucionDto: CreateDevolucionDto) {
+    const activosIds = await Promise.all(
+          createDevolucionDto.activos.map(async (id) => {
+            const updatedActivo = await this.activosModel.findByIdAndUpdate(
+              id,
+              { disponibilidad: true },
+              { new: true }
+            );
+            return updatedActivo?._id;
+          })
+        );
+        const entrega = await this.devolucionModel.create({...createDevolucionDto, activos: activosIds.filter(Boolean),
+        });
+    return entrega;
   }
 
   async findAll(filters: FiltersDevolucionDto) {
-    const { field, skip = 0, limit = 10 } = filters
-    let query: any = {}
-    if (field) {
-      const [
-        matchgradeId,
-        matchuserId,
-        matchlocationId
-      ] = await Promise.all([
-        this.gradeModel.find({ name: { $regex: field, $options: 'i' } }).select('_id'),
-        this.usersModel.find({
+       const { field = '', skip = 0, limit = 10 } = filters
+
+    const matchConditions: any[] = [];
+
+    const words = field?.trim().split(' ').filter(w => w !== '');
+
+    if (words.length > 0) {
+      const regexFilters = words.map(word => {
+        const regex = new RegExp(word, 'i');
+        return {
           $or: [
-            { name: { $regex: field, $options: 'i' } },
-            { lastName: { $regex: field, $options: 'i' } }
-          ]
-        }).select('_id'),
-        this.locationModel.find({ name: { $regex: field, $options: 'i' } }).select('_id'),
-      ])
-
-      query.$or = [
-        { code: { $regex: field, $options: 'i' } },
-        { name: { $regex: field, $options: 'i' } },
-        { lastName: { $regex: field, $options: 'i' } },
-        { time: { $regex: field, $options: 'i' } },
-        { grade: { $in: matchgradeId.map(r => r._id) } },
-        { user_en: { $in: matchuserId.map(r => r._id) } },
-        { location: { $in: matchlocationId.map(r => r._id) } },
-      ];
-
-      const inputDate = parseDate(field);
-      if (inputDate) {
-        const startOfDay = new Date(inputDate);
-        startOfDay.setHours(0, 0, 0, 0);
-        const endOfDay = new Date(inputDate);
-        endOfDay.setHours(23, 59, 59, 999);
-        query.$or.push(
-          { date: { $gte: startOfDay, $lte: endOfDay } },
-        );
-      }
-    }
-    const safeLimit = Math.min(limit, 100);
-    const [result, total] = await Promise.all([
-      this.entregaModel.find(query).populate([
-        { path: 'grade' },
-        {
-          path: 'user_en', select: '-password -__v',
-          populate: { path: 'grade' }
-        },
-        { path: 'location' },
-        {
-          path: 'activos',
-          populate: [
-            { path: 'location' },
-            { path: 'category' },
-            { path: 'subcategory' }
+            { code: regex },
+            { time: regex },
+            { 'user_rec.grade.name': regex },
+            { 'user_rec.name': regex },
+            { 'user_rec.lastName': regex },
+            { 'user_en.grade.name': regex },
+            { 'user_en.name': regex },
+            { 'user_en.lastName': regex },
           ]
         }
-      ])
-        .select('-createdAt -updatedAt -__v')
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(safeLimit)
-        .exec(),
-      this.entregaModel.countDocuments(query)
-    ])
+      });
+      if (regexFilters.length > 0) {
+        matchConditions.push({ $and: regexFilters });
+      }
+    }
+    const inputDate = parseDate(field);
+    if (inputDate) {
+      const startOfDay = new Date(inputDate);
+      startOfDay.setHours(0, 0, 0, 0);
+
+      const endOfDay = new Date(inputDate);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      matchConditions.push({
+        date_a: { $gte: startOfDay, $lte: endOfDay }
+      });
+    }
+
+    const pipeline: any[] = [
+      { $lookup: { from: "users", localField: "user_rec", foreignField: "_id", as: "user_rec" } },
+      { $lookup: { from: "users", localField: "user_en", foreignField: "_id", as: "user_en" } },
+      { $unwind: { path: "$user_rec", preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: "$user_en", preserveNullAndEmptyArrays: true } },
+
+      {
+        $lookup: {
+          from: "grades",
+          localField: "user_rec.grade",
+          foreignField: "_id",
+          as: "user_rec.grade"
+        }
+      },
+      { $unwind: { path: "$user_rec.grade", preserveNullAndEmptyArrays: true } },
+
+      {
+        $lookup: {
+          from: "grades",
+          localField: "user_en.grade",
+          foreignField: "_id",
+          as: "user_en.grade"
+        }
+      },
+      { $unwind: { path: "$user_en.grade", preserveNullAndEmptyArrays: true } },
+
+      ...(matchConditions.length > 0 ? [{ $match: { $or: matchConditions } }] : [])
+    ];
+
+
+    const countPipeline = [...pipeline, { $count: "total" }]
+    const dataPipeline = [...pipeline,
+    { $sort: { createdAt: -1 } },
+    { $skip: skip },
+    { $limit: Math.min(limit, 100) },
+    {
+      $project: {
+        user_en: {
+          _id: 1,
+          name: 1,
+          lastName: 1,
+          grade: {
+            _id: 1,
+            name: 1
+          }
+        },
+        user_rec: {
+          _id: 1,
+          name: 1,
+          lastName: 1,
+          grade: 1
+        },
+        _id: 1,
+        date: 1,
+        code: 1,
+        time: 1,
+        documentUrl: 1,
+        description: 1
+      }
+    }
+    ];
+
+    const total = await this.devolucionModel.aggregate(countPipeline).then(res => res[0]?.total || 0);
+    const result = await this.devolucionModel.aggregate(dataPipeline);
+
     return { result, total };
   }
 
