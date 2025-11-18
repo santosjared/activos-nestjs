@@ -14,7 +14,7 @@ import { Location, locationDocument } from 'src/activos/schema/location.schema';
 import { FiltersEntregaDto } from './dto/filters-activo.dto';
 import { Grade, GradeDocument } from 'src/users/schema/grade.schema';
 import { unlinkSync, existsSync } from 'fs';
-import path, { join } from 'path';
+import { join } from 'path';
 
 @Injectable()
 export class EntregaService {
@@ -175,8 +175,8 @@ export class EntregaService {
     return { result, total };
   }
 
-  async findOne(id: string) {
-    return await this.entregaModel.findById(id).populate([
+  async findOne(code: string) {
+    return await this.entregaModel.findOne({code}).populate([
       {
         path: 'activos', select: 'code name imageUrl location category subcategory _id',
         populate: [

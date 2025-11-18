@@ -96,9 +96,9 @@ export class EntregaController {
     return await this.entregaService.generateUniqueCode()
   }
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return await this.entregaService.findOne(id);
+  @Get(':code')
+  async findOne(@Param('code') code: string) {
+    return await this.entregaService.findOne(code);
   }
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)

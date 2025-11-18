@@ -10,8 +10,8 @@ export const permissions: Permission[] = [
     { subject: 'roles', action: ['read', 'create', 'update', 'delete','permissions'] },
     { subject: 'activos', action: ['read', 'create', 'update', 'delete'] },
     { subject: 'contable', action: ['read', 'create', 'update', 'delete'] },
-    { subject: 'entrega', action: ['read', 'create', 'update', 'delete', 'details', 'print'] },
-    { subject: 'devolucion', action: ['read', 'create', 'update', 'delete', 'details', 'print'] },
+    { subject: 'entrega', action: ['read', 'create', 'update', 'delete', 'details', 'print', 'upload'] },
+    { subject: 'devolucion', action: ['read', 'create', 'update', 'delete', 'details', 'print', 'upload'] },
     { subject: 'depreciacion', action: ['read', 'calcular'] },
     { subject: 'bitacora', action: ['read'] },
 ];

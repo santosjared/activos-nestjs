@@ -11,6 +11,7 @@ import { Entrega, EntregaSchema } from 'src/entrega/schema/entrega.schema';
 import { Grade, GradeSchema } from 'src/users/schema/grade.schema';
 import { LocationSchema, Location } from 'src/activos/schema/location.schema';
 import { Devolucion, DevolucionSchema } from './schema/devolucion.schema';
+import { CaslModule } from 'src/casl/casl.module';
 
 @Module({
    imports:[MongooseModule.forFeature([
@@ -23,7 +24,8 @@ import { Devolucion, DevolucionSchema } from './schema/devolucion.schema';
         { name:Entrega.name, schema:EntregaSchema},
         { name:Grade.name, schema:GradeSchema},
         { name:Devolucion.name, schema:DevolucionSchema },
-     ])
+     ]),
+     CaslModule
    ],
   controllers: [DevolucionController],
   providers: [DevolucionService],

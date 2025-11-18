@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateDevolucionDto } from './dto/create-devolucion.dto';
 import { UpdateDevolucionDto } from './dto/update-devolucion.dto';
 import { FiltersDevolucionDto } from './dto/filters-devolucion.dto';
@@ -14,6 +14,8 @@ import { Users, UsersDocument } from 'src/users/schema/users.schema';
 import { Grade, GradeDocument } from 'src/users/schema/grade.schema';
 import { parseDate } from 'src/utils/parse-date';
 import { Devolucion, DevolucionDocument } from './schema/devolucion.schema';
+import { unlinkSync, existsSync } from 'fs';
+import { join } from 'path';
 
 @Injectable()
 export class DevolucionService {
@@ -220,8 +222,29 @@ export class DevolucionService {
     return { result, total };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} devolucion`;
+  async findOne(code: string) {
+    return await this.devolucionModel.findOne({code}).populate([
+      {
+        path: 'activos', select: 'code name imageUrl category subcategory _id',
+        populate: [
+          { path: 'category', select: 'name _id' },
+          { path: 'subcategory', select: 'name _id' },
+          { path: 'status', select: 'name _id' }
+        ]
+      },
+      {
+        path: 'user_dev', select: 'grade name lastName ci _id',
+        populate: {
+          path: 'grade', select: 'name _id'
+        }
+      },
+      {
+        path: 'user_rec', select: 'grade name lastName ci _id',
+        populate: {
+          path: 'grade', select: 'name _id'
+        }
+      },
+    ]);
   }
 
   async findOneEntrega(id:string){
@@ -245,8 +268,57 @@ export class DevolucionService {
         .select('-createdAt -updatedAt -__v')
   }
 
-  update(id: number, updateDevolucionDto: UpdateDevolucionDto) {
-    return `This action updates a #${id} devolucion`;
+  async update(id: string, updateDevolucionDto: UpdateDevolucionDto) {
+    
+    const devolucionExistente = await this.devolucionModel.findById(id);
+    
+        if (!devolucionExistente) {
+          throw new NotFoundException('devolucion no encontrada');
+        }
+    
+        if (updateDevolucionDto.documentUrl) {
+          if (devolucionExistente.documentUrl) {
+            const oldFilePath = join(
+              __dirname,
+              '..',
+              '..',
+              'uploads',
+              'documents',
+              devolucionExistente.documentUrl,
+            );
+            if (existsSync(oldFilePath)) {
+              unlinkSync(oldFilePath);
+            }
+          }
+        } else {
+          updateDevolucionDto.documentUrl = devolucionExistente.documentUrl;
+        }
+        const activosAnteriores = devolucionExistente.activos.map((a: any) => a.toString());
+        const nuevosActivos = updateDevolucionDto.activos || [];
+    
+        const removidos = activosAnteriores.filter((id) => !nuevosActivos.includes(id));
+        const agregados = nuevosActivos.filter((id) => !activosAnteriores.includes(id));
+    
+        await Promise.all(
+          removidos.map(async (id) => {
+            await this.activosModel.findByIdAndUpdate(id, { disponibilidad: false });
+          }),
+        );
+        await Promise.all(
+          agregados.map(async (id) => {
+            await this.activosModel.findByIdAndUpdate(id, { disponibilidad: true });
+          }),
+        );
+        const devolucionActualizada = await this.devolucionModel.findByIdAndUpdate(
+          id,
+          {
+            ...updateDevolucionDto,
+            activos: nuevosActivos,
+          },
+          { new: true },
+        );
+    
+        return devolucionActualizada;
   }
 
   remove(id: number) {
