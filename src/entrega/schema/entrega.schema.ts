@@ -27,8 +27,6 @@ export class Entrega  {
     documentUrl?:string
     @Prop()
     description?:string
-    // @Prop({default:false})
-    // devuelto:boolean
 }
 
 export const EntregaSchema = SchemaFactory.createForClass(Entrega);

@@ -1,5 +1,5 @@
 import { Transform } from "class-transformer";
-import { IsArray, IsDateString, IsNotEmpty, IsOptional, IsString, Matches, MaxLength, MinLength, ValidateIf } from "class-validator";
+import { IsArray, IsNotEmpty, IsOptional, IsString, Matches, MaxLength, MinLength, ValidateIf } from "class-validator";
 
 export class CreateDevolucionDto {
     @IsNotEmpty({ message: 'La fecha de entrega es obligatoria' })
@@ -16,12 +16,12 @@ export class CreateDevolucionDto {
     })
     time: string;
 
-    @IsNotEmpty({ message: 'usuario que entrega es obligatorio' })
-    @IsString({ message: 'El id del usuario debe ser una cadena de caracteres' })
-    user_en: string;
+    @IsNotEmpty({ message: 'usuario que devuelve es obligatorio' })
+    @IsString({ message: 'El id del usuario que devuelve debe ser una cadena de caracteres' })
+    user_dev: string;
 
-    @IsNotEmpty({ message: 'usuario que entrega es obligatorio' })
-    @IsString({ message: 'El id del usuario debe ser una cadena de caracteres' })
+    @IsNotEmpty({ message: 'usuario que recibe es obligatorio' })
+    @IsString({ message: 'El id del usuario que recibe debe ser una cadena de caracteres' })
     user_rec: string;
 
     @IsArray({ message: 'La lista de activos debe ser un arreglo' })

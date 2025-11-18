@@ -18,7 +18,7 @@ export class Devolucion {
     @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Users' })
     user_rec: Users
     @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Users' })
-    user_en: Users
+    user_dev: Users
     @Prop({ type: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'Activos' }] })
     activos: Activos[]
     @Prop()

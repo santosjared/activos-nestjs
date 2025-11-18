@@ -39,9 +39,9 @@ export class DevolucionService {
             return updatedActivo?._id;
           })
         );
-        const entrega = await this.devolucionModel.create({...createDevolucionDto, activos: activosIds.filter(Boolean),
+        const devolucion = await this.devolucionModel.create({...createDevolucionDto, activos: activosIds.filter(Boolean),
         });
-    return entrega;
+    return devolucion;
   }
 
   async findAll(filters: FiltersDevolucionDto) {
@@ -61,9 +61,9 @@ export class DevolucionService {
             { 'user_rec.grade.name': regex },
             { 'user_rec.name': regex },
             { 'user_rec.lastName': regex },
-            { 'user_en.grade.name': regex },
-            { 'user_en.name': regex },
-            { 'user_en.lastName': regex },
+            { 'user_dev.grade.name': regex },
+            { 'user_dev.name': regex },
+            { 'user_dev.lastName': regex },
           ]
         }
       });
@@ -86,9 +86,9 @@ export class DevolucionService {
 
     const pipeline: any[] = [
       { $lookup: { from: "users", localField: "user_rec", foreignField: "_id", as: "user_rec" } },
-      { $lookup: { from: "users", localField: "user_en", foreignField: "_id", as: "user_en" } },
+      { $lookup: { from: "users", localField: "user_dev", foreignField: "_id", as: "user_dev" } },
       { $unwind: { path: "$user_rec", preserveNullAndEmptyArrays: true } },
-      { $unwind: { path: "$user_en", preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: "$user_dev", preserveNullAndEmptyArrays: true } },
 
       {
         $lookup: {
@@ -103,12 +103,12 @@ export class DevolucionService {
       {
         $lookup: {
           from: "grades",
-          localField: "user_en.grade",
+          localField: "user_dev.grade",
           foreignField: "_id",
-          as: "user_en.grade"
+          as: "user_dev.grade"
         }
       },
-      { $unwind: { path: "$user_en.grade", preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: "$user_dev.grade", preserveNullAndEmptyArrays: true } },
 
       ...(matchConditions.length > 0 ? [{ $match: { $or: matchConditions } }] : [])
     ];
@@ -121,7 +121,7 @@ export class DevolucionService {
     { $limit: Math.min(limit, 100) },
     {
       $project: {
-        user_en: {
+        user_dev: {
           _id: 1,
           name: 1,
           lastName: 1,

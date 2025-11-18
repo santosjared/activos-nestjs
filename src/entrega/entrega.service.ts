@@ -182,7 +182,8 @@ export class EntregaService {
         populate: [
           { path: 'location', select: 'name _id' },
           { path: 'category', select: 'name _id' },
-          { path: 'subcategory', select: 'name _id' }
+          { path: 'subcategory', select: 'name _id' },
+          { path: 'status', select: 'name _id' }
         ]
       },
       {
