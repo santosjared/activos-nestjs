@@ -12,6 +12,7 @@ import { join } from 'path';
 import { EntregaModule } from './entrega/entrega.module';
 import { ContableModule } from './contable/contable.module';
 import { DevolucionModule } from './devolucion/devolucion.module';
+import { DepreciacionModule } from './depreciacion/depreciacion.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -34,6 +35,7 @@ import { DevolucionModule } from './devolucion/devolucion.module';
     EntregaModule,
     ContableModule,
     DevolucionModule,
+    DepreciacionModule,
   ],
 })
 export class AppModule {}
