@@ -13,6 +13,7 @@ import { EntregaModule } from './entrega/entrega.module';
 import { ContableModule } from './contable/contable.module';
 import { DevolucionModule } from './devolucion/devolucion.module';
 import { DepreciacionModule } from './depreciacion/depreciacion.module';
+import { BitacorasModule } from './bitacoras/bitacoras.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -36,6 +37,7 @@ import { DepreciacionModule } from './depreciacion/depreciacion.module';
     ContableModule,
     DevolucionModule,
     DepreciacionModule,
+    BitacorasModule,
   ],
 })
 export class AppModule {}

@@ -4,13 +4,15 @@ import * as cheerio from 'cheerio';
 import { InjectModel } from '@nestjs/mongoose';
 import { Activos, ActivosDocument } from 'src/activos/schema/activos.schema';
 import { Model } from 'mongoose';
+import { FiltersDepreciacionDto } from './dto/filters-depreciacion.dto';
 
 @Injectable()
 export class DepreciacionService {
   constructor(
     @InjectModel(Activos.name)
     private readonly activosModel: Model<ActivosDocument>
-  ) {}
+  ) { }
+
   private async getUFVByDate(date: string) {
     try {
       const [year, month, day] = date.split('-');
@@ -28,21 +30,24 @@ export class DepreciacionService {
 
       const url = 'https://www.bcb.gob.bo/librerias/indicadores/ufv/gestion.php';
 
-      const response = await axios.get(url, { params, timeout: 30000 });
+      const response = await axios.get(url, { params, timeout: 40000 });
       const $ = cheerio.load(response.data);
 
       let ufvValue = 0;
-
+      let valor_ufv = '0'
       $('table.tablaborde tr').each((i, el) => {
         if (i === 0) return;
-        const ufv = $(el).find('td').eq(2).text().trim();
+        valor_ufv = $(el).find('td').eq(2).text().trim();
 
-        if (ufv) ufvValue = Number(ufv);
+        if (valor_ufv) {
+          const parsed = valor_ufv.replace(',', '.');
+          ufvValue = Number(parsed);
+        }
       });
 
       if (!ufvValue) throw new Error('UFV no encontrado');
 
-      return { ufv: ufvValue };
+      return { ufv: ufvValue, valor_ufv };
 
     } catch (e) {
       console.log(e);
@@ -72,26 +77,32 @@ export class DepreciacionService {
     };
   }
 
- private calcularAniosUsados(fechaInicial: string, fechaFinal: string): number {
-  const start = new Date(fechaInicial);
-  const end = new Date(fechaFinal);
+  private calcularAniosUsados(fechaInicial: string, fechaFinal: string): number {
+    const start = new Date(fechaInicial);
+    const end = new Date(fechaFinal);
 
-  const diffMs = end.getTime() - start.getTime();
-  const anios = diffMs / (1000 * 60 * 60 * 24 * 365);
+    const diffMs = end.getTime() - start.getTime();
+    const anios = diffMs / (1000 * 60 * 60 * 24 * 365);
 
-  return Number(anios.toFixed(4));
-}
+    return Number(anios.toFixed(4));
+  }
 
-  async findAll(filters: any) {
+  async findAll(filters: FiltersDepreciacionDto) {
     const {
       skip = 0,
       limit = 10,
       fecha_compra = '2025-11-12',
-      fecha_final = '2025-11-12'
+      fecha_final = '2025-11-12',
     } = filters;
-
+    const start = new Date(`${fecha_compra}T00:00:00-04:00`);
+    const end = new Date(`${fecha_final}T23:59:59.999-04:00`);
     const activos = await this.activosModel
-      .find({ date_a: fecha_compra })
+      .find({
+        date_a: {
+          $gte: start,
+          $lte: end
+        }
+      })
       .populate([
         { path: 'category', select: 'util' },
         { path: 'subcategory', select: 'util' }
@@ -99,10 +110,18 @@ export class DepreciacionService {
       .skip(skip)
       .limit(Math.min(limit, 100));
 
-    if (activos.length === 0) return activos;
+    if (activos.length === 0) {
+      const valor_ufv = (await this.getUFVByDate(fecha_compra)).valor_ufv
+      return {
+        result: [],
+        total: 0,
+        valor_ufv
+      }
+    }
 
     let ufv_inicial = 0;
     let ufv_final = 0;
+    let valor_ufv = '0'
     if (fecha_compra === fecha_final) {
       const ufv = await this.getUFVByDate(fecha_compra);
       ufv_inicial = ufv.ufv;
@@ -114,16 +133,18 @@ export class DepreciacionService {
       ]);
 
       ufv_inicial = ufv1.ufv;
+      valor_ufv = ufv1.valor_ufv;
       ufv_final = ufv2.ufv;
     }
 
-    return activos.map(activo => {
+    const result = activos.map(activo => {
       const vidaUtil =
         activo.subcategory?.util ||
         activo.category?.util ||
         0;
 
       return {
+        _id:activo._id,
         nombre: activo.name,
         fecha_a: activo.date_a,
         precio_ac: activo.price_a,
@@ -138,5 +159,11 @@ export class DepreciacionService {
         )
       };
     });
+    const total = await this.activosModel.countDocuments({ date_a: fecha_compra })
+    return {
+      result,
+      total,
+      valor_ufv
+    }
   }
 }

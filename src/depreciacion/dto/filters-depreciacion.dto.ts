@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsNumber, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class FiltersDepreciacionDto {
 
@@ -18,4 +18,5 @@ export class FiltersDepreciacionDto {
     @Type(() => Number)
     @IsNumber()
     limit?: number;
+    
 }
