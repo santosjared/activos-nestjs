@@ -14,6 +14,8 @@ import { ContableModule } from './contable/contable.module';
 import { DevolucionModule } from './devolucion/devolucion.module';
 import { DepreciacionModule } from './depreciacion/depreciacion.module';
 import { BitacorasModule } from './bitacoras/bitacoras.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { BitacoraInterceptor } from './bitacoras/interceptor/bitacora.interceptor';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -39,5 +41,11 @@ import { BitacorasModule } from './bitacoras/bitacoras.module';
     DepreciacionModule,
     BitacorasModule,
   ],
+  providers:[
+    {
+      provide:APP_INTERCEPTOR,
+      useClass:BitacoraInterceptor
+    }
+  ]
 })
 export class AppModule {}

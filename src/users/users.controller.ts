@@ -8,6 +8,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 import { PermissionsGuard } from 'src/casl/guards/permissions.guard';
 import { CheckAbilities } from 'src/casl/decorators/permission.decorator'
 import { UserDto } from './dto/dto';
+import { Bitacora } from 'src/bitacoras/decorator/bitacora.decorator';
 
 @Controller('users')
 @ApiTags('users')
@@ -30,6 +31,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'read', subject: 'users' })
+  @Bitacora('Selecionar usuarios')
   @Get()
   async findAll(@Query() filters: FiltersUsersDto) {
     return await this.usersService.findAll(filters);

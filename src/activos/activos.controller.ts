@@ -12,6 +12,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 import { PermissionsGuard } from 'src/casl/guards/permissions.guard';
 import { CheckAbilities } from 'src/casl/decorators/permission.decorator'
 import { DisableEnamebleDto } from './dto/disbled-enable.dto';
+import { Bitacora } from 'src/bitacoras/decorator/bitacora.decorator';
 
 @Controller('activos')
 export class ActivosController {
@@ -19,6 +20,7 @@ export class ActivosController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'create', subject: 'activos' })
+  @Bitacora('Crear activos fijos')
   @Post()
   @UseInterceptors(
     FileInterceptor('image', {
@@ -59,6 +61,7 @@ export class ActivosController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'read', subject: 'activos' })
+  @Bitacora('selecionar activos fijos')
   @Get()
   async findAll(@Query() filters: FiltersActivoDto) {
     const response = await this.activosService.findAll(filters);
@@ -67,6 +70,7 @@ export class ActivosController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'read', subject: 'activos' })
+  @Bitacora('Selecionar categorias de activos fijos')
   @Get('category')
   async findCategory() {
     return await this.activosService.findCategory()
@@ -74,6 +78,7 @@ export class ActivosController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'read', subject: 'activos' })
+  @Bitacora('Selecionar estados de activos fijos')
   @Get('status')
   async findStatus(@Query() filters: FiltersActivoDto) {
     return await this.activosService.findStatus(filters)
@@ -81,6 +86,7 @@ export class ActivosController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'read', subject: 'activos' })
+  @Bitacora('Seleccionar ubicacion activos fijos')
   @Get('location')
   async findLocation(@Query() filters: FiltersActivoDto) {
     return await this.activosService.findLocation(filters)
@@ -90,6 +96,7 @@ export class ActivosController {
 
     @UseGuards(JwtAuthGuard, PermissionsGuard)
   // @CheckAbilities({ action: 'read', subject: 'activos' })
+  @Bitacora('Selecionar codigo de activos fijos')
   @Get('search-code')
   async searchCode(@Query() filters: FiltersActivoDto) {
     return await this.activosService.searchCode(filters)
@@ -97,6 +104,7 @@ export class ActivosController {
 
    @UseGuards(JwtAuthGuard, PermissionsGuard)
   // @CheckAbilities({ action: 'read', subject: 'activos' })
+  @Bitacora('Seleccionar activos no asignados activos fijos')
   @Get('avalaibles')
   async findAvalaibles(@Query() filters: FiltersActivoDto) {
     const response = await this.activosService.avalaibles(filters);
@@ -111,6 +119,7 @@ export class ActivosController {
 
     @UseGuards(JwtAuthGuard, PermissionsGuard)
   // @CheckAbilities({ action: 'delete', subject: 'activos' })
+  @Bitacora('Agregar activos fijos para la entrega')
   @Put('disabled')
   async disabledActivo(@Body() disbleActivo:DisableEnamebleDto){
     return await this.activosService.disableActivo(disbleActivo)
@@ -118,6 +127,7 @@ export class ActivosController {
 
      @UseGuards(JwtAuthGuard, PermissionsGuard)
   // @CheckAbilities({ action: 'delete', subject: 'activos' })
+  @Bitacora('Eleminar activos fijos de la entrega')
   @Put('enable/:id')
   async enableActivo(@Param('id') id:string){
     return await this.activosService.enableActivo(id);
@@ -125,6 +135,7 @@ export class ActivosController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'update', subject: 'activos' })
+  @Bitacora('Actualizar activos fijos')
   @Put(':id')
   @UseInterceptors(
     FileInterceptor('image', {
@@ -166,6 +177,7 @@ export class ActivosController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'delete', subject: 'activos' })
+  @Bitacora('Eliminar activos fijos')
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return await this.activosService.remove(id);
