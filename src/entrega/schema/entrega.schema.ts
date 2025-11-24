@@ -2,7 +2,6 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument} from "mongoose";
 import { Activos } from "src/activos/schema/activos.schema";
 import { Location } from "src/activos/schema/location.schema";
-import { Grade } from "src/users/schema/grade.schema";
 import { Users } from "src/users/schema/users.schema";
 
 export type EntregaDocument = HydratedDocument<Entrega>

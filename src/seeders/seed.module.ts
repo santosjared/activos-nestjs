@@ -17,7 +17,6 @@ import { AuthSeedService } from './auth-seed.service';
 import { Auth, AuthSchema } from 'src/auth/schema/auth.schema';
 import { Permission, PermissionsSchema } from 'src/roles/schema/permission.schema';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({

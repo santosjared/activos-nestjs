@@ -3,7 +3,6 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Location, locationDocument } from "src/activos/schema/location.schema";
 
-
 @Injectable()
 export class LocationSeed {
     constructor(@InjectModel(Location.name) private readonly LocationModel: Model<locationDocument>) { }

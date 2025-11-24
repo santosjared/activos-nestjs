@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import mongoose, { HydratedDocument } from 'mongoose'
-import { Category } from './category.schema'
 import { Status } from './status.schema'
 import { Location } from './location.schema'
 import { Users } from 'src/users/schema/users.schema'

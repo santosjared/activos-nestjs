@@ -23,7 +23,7 @@ export class EntregaController {
   @UseInterceptors(
     FileInterceptor('document', {
       storage: diskStorage({
-        destination: (req, file, cb) => {
+        destination: (_, file, cb) => {
           let folderPath = '';
 
           if (file.fieldname === 'document') {
@@ -39,7 +39,7 @@ export class EntregaController {
           cb(null, folderPath);
         },
 
-        filename: (req, file, cb) => {
+        filename: (_, file, cb) => {
           const uniqueSuffix = `${Date.now()}-${uuidv4()}`;
           const extension = extname(file.originalname);
           cb(null, uniqueSuffix + extension);
@@ -127,7 +127,7 @@ export class EntregaController {
   @UseInterceptors(
     FileInterceptor('document', {
       storage: diskStorage({
-        destination: (req, file, cb) => {
+        destination: (_, file, cb) => {
           let folderPath = '';
 
           if (file.fieldname === 'document') {
@@ -143,7 +143,7 @@ export class EntregaController {
           cb(null, folderPath);
         },
 
-        filename: (req, file, cb) => {
+        filename: (_, file, cb) => {
           const uniqueSuffix = `${Date.now()}-${uuidv4()}`;
           const extension = extname(file.originalname);
           cb(null, uniqueSuffix + extension);

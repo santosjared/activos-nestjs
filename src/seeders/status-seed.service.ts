@@ -1,9 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { Category, CategoryDocument } from "src/activos/schema/category.schema";
 import { Status, StatusDocument } from "src/activos/schema/status.schema";
-
 
 @Injectable()
 export class StatusSeed {

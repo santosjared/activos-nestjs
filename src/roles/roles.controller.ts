@@ -1,6 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { RolesService } from './roles.service';
-import { ApiTags } from '@nestjs/swagger';
 import { CreateRolDto } from './dto/create-roles.dto';
 import { UpdateRolDto } from './dto/update-rol.dto';
 import { CreatePermissionDto } from 'src/roles/dto/create-permission.dto';

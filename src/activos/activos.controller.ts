@@ -136,9 +136,9 @@ export class ActivosController {
      @UseGuards(JwtAuthGuard, PermissionsGuard)
   // @CheckAbilities({ action: 'delete', subject: 'activos' })
   @Bitacora('Eleminar activos fijos de la entrega')
-  @Put('enable/:id')
-  async enableActivo(@Param('id') id:string){
-    return await this.activosService.enableActivo(id);
+  @Put('enable')
+  async enableActivo(@Body() enableActivo:DisableEnamebleDto){
+    return await this.activosService.enableActivo(enableActivo);
   }
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)

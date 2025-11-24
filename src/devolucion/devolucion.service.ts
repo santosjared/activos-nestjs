@@ -22,7 +22,6 @@ export class DevolucionService {
   constructor(@InjectModel(Entrega.name) private readonly entregaModel: Model<EntregaDocument>,
     @InjectModel(Activos.name) private readonly activosModel: Model<ActivosDocument>,
     @InjectModel(Contable.name) private readonly categoryModel: Model<ContableDocument>,
-    @InjectModel(SubCategory.name) private readonly subModel: Model<SubCateGoryDocument>,
     @InjectModel(Status.name) private readonly statusModel: Model<StatusDocument>,
     @InjectModel(Location.name) private readonly locationModel: Model<locationDocument>,
     @InjectModel(Users.name) private readonly usersModel: Model<UsersDocument>,

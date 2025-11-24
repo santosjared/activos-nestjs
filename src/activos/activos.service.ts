@@ -8,7 +8,6 @@ import { FiltersActivoDto } from './dto/filters-activo.dto';
 import { parseDate } from 'src/utils/parse-date';
 import { Status, StatusDocument } from './schema/status.schema';
 import { Location, locationDocument } from './schema/location.schema';
-import { Users, UsersDocument } from 'src/users/schema/users.schema';
 import { Contable, ContableDocument } from 'src/contable/schema/contable.schema';
 import { SubCategory, SubCateGoryDocument } from 'src/contable/schema/sub-category.schema';
 import { DisableEnamebleDto } from './dto/disbled-enable.dto';
@@ -23,9 +22,8 @@ export class ActivosService {
     @InjectModel(SubCategory.name) private readonly subModel: Model<SubCateGoryDocument>,
     @InjectModel(Status.name) private readonly statusModel: Model<StatusDocument>,
     @InjectModel(Location.name) private readonly locationModel: Model<locationDocument>,
-    @InjectModel(Users.name) private readonly UsersModel: Model<UsersDocument>,
-    @InjectModel(Entrega.name) private readonly entregaModel:Model<EntregaDocument>,
-    @InjectModel(Devolucion.name) private readonly devolucionModel:Model<DevolucionDocument>
+    @InjectModel(Entrega.name) private readonly entregaModel: Model<EntregaDocument>,
+    @InjectModel(Devolucion.name) private readonly devolucionModel: Model<DevolucionDocument>
   ) { }
   async create(createActivoDto: CreateActivoDto) {
     const data = { ...createActivoDto };
@@ -205,9 +203,9 @@ export class ActivosService {
     ]);
   }
 
-  async searchCode(filters:FiltersActivoDto){
-    const { field='' } = filters
-    return await this.activosModel.findOne({code:field}).populate([
+  async searchCode(filters: FiltersActivoDto) {
+    const { field = '' } = filters
+    return await this.activosModel.findOne({ code: field }).populate([
       { path: 'location', select: '-__v' },
       {
         path: 'category', select: '-__v',
@@ -220,10 +218,10 @@ export class ActivosService {
     ]);
   }
 
-async disableActivo(disable: DisableEnamebleDto) {
-  const activos = await this.activosModel.find({
-    _id: { $in: disable.activos }
-  }).populate([
+  async disableActivo(disable: DisableEnamebleDto) {
+    const activos = await this.activosModel.find({
+      _id: { $in: disable.activos }
+    }).populate([
       { path: 'location', select: '-__v' },
       {
         path: 'category', select: '-__v',
@@ -235,45 +233,49 @@ async disableActivo(disable: DisableEnamebleDto) {
       { path: 'subcategory', select: '-__v' }
     ]);
 
-  const yaDeshabilitados = activos.filter(a => !a.disponibilidad);
-  const porDeshabilitar = activos.filter(a => a.disponibilidad);
+    const yaDeshabilitados = activos.filter(a => !a.disponibilidad);
+    const porDeshabilitar = activos.filter(a => a.disponibilidad);
 
-  const message = yaDeshabilitados.map(a =>
-    `El activo ya está agregado, código del activo: ${a.code}`
-  );
-
-  if (porDeshabilitar.length > 0) {
-    await this.activosModel.updateMany(
-      { _id: { $in: porDeshabilitar.map(a => a._id) } },
-      { $set: { disponibilidad: false } }
+    const message = yaDeshabilitados.map(a =>
+      `El activo ya está agregado, código del activo: ${a.code}`
     );
-  }
 
-  return {
-    updated: porDeshabilitar,
-    alreadyAdded: yaDeshabilitados.length,
-    message
-  };
-}
+    if (porDeshabilitar.length > 0) {
+      await this.activosModel.updateMany(
+        { _id: { $in: porDeshabilitar.map(a => a._id) } },
+        { $set: { disponibilidad: false } }
+      );
+    }
 
-async enableActivo(id: string) {
-  const enable = await this.activosModel.findByIdAndUpdate(
-    id,
-    { disponibilidad: true },
-    { new: true } 
-  );
-
-  if (enable) {
     return {
-      enable,
-      ok: true,
+      updated: porDeshabilitar,
+      alreadyAdded: yaDeshabilitados.length,
+      message
     };
   }
 
-  return {
-    ok: false,
-  };
-}
+  async enableActivo(enableDto: DisableEnamebleDto) {
+    const enable = await Promise.all(
+      enableDto.activos.map(async (id) => {
+        await this.activosModel.findByIdAndUpdate(
+          id,
+          { disponibilidad: true },
+          { new: true }
+        );
+      })
+    )
+
+    if (enable.length>0) {
+      return {
+        enable,
+        ok: true,
+      };
+    }
+
+    return {
+      ok: false,
+    };
+  }
 
 
 
@@ -355,7 +357,7 @@ async enableActivo(id: string) {
       { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },
       { $unwind: { path: "$subcategory", preserveNullAndEmptyArrays: true } },
 
-       { $match: { disponibilidad: true } },
+      { $match: { disponibilidad: true } },
 
       ...(matchConditions.length > 0 ? [{ $match: { $or: matchConditions } }] : [])
     ];
@@ -403,63 +405,63 @@ async enableActivo(id: string) {
     return { result, total };
   }
 
-async trazabilidad(id: string) {
-  const activo = await this.activosModel.findById(id);
+  async trazabilidad(id: string) {
+    const activo = await this.activosModel.findById(id);
 
-  if (!activo) throw new NotFoundException("Activo no encontrado");
+    if (!activo) throw new NotFoundException("Activo no encontrado");
 
-  const [entregados, devueltos] = await Promise.all([
-    this.entregaModel
-      .find({ activos: id })
-      .populate('location')
-      .sort({ date: 1, time: 1 }),
+    const [entregados, devueltos] = await Promise.all([
+      this.entregaModel
+        .find({ activos: id })
+        .populate('location')
+        .sort({ date: 1, time: 1 }),
 
-    this.devolucionModel
-      .find({ activos: id })
-      .sort({ date: 1, time: 1 }),
-  ]);
+      this.devolucionModel
+        .find({ activos: id })
+        .sort({ date: 1, time: 1 }),
+    ]);
 
-  const map = new Map();
-  for (const e of entregados) {
-    map.set(e.code, {
-      code: e.code,
-      entrega: {
-        date: e.date,
-        time: e.time,
-        location: e.location?.name ?? null,
-      },
-      devolucion: null
-    });
-  }
-  for (const d of devueltos) {
-    if (map.has(d.code)) {
-      map.get(d.code).devolucion = {
-        date: d.date,
-        time: d.time,
-      };
-    } else {
-      map.set(d.code, {
-        code: d.code,
-        entrega: null,
-        devolucion: {
-          date: d.date,
-          time: d.time,
-        }
+    const map = new Map();
+    for (const e of entregados) {
+      map.set(e.code, {
+        code: e.code,
+        entrega: {
+          date: e.date,
+          time: e.time,
+          location: e.location?.name ?? null,
+        },
+        devolucion: null
       });
     }
-  }
-  const timeline = Array.from(map.values()).sort((a, b) => {
-    const A = new Date(`${a.entrega?.date ?? a.devolucion.date}T${a.entrega?.time ?? a.devolucion.time}`);
-    const B = new Date(`${b.entrega?.date ?? b.devolucion.date}T${b.entrega?.time ?? b.devolucion.time}`);
-    return A.getTime() - B.getTime();
-  });
+    for (const d of devueltos) {
+      if (map.has(d.code)) {
+        map.get(d.code).devolucion = {
+          date: d.date,
+          time: d.time,
+        };
+      } else {
+        map.set(d.code, {
+          code: d.code,
+          entrega: null,
+          devolucion: {
+            date: d.date,
+            time: d.time,
+          }
+        });
+      }
+    }
+    const timeline = Array.from(map.values()).sort((a, b) => {
+      const A = new Date(`${a.entrega?.date ?? a.devolucion.date}T${a.entrega?.time ?? a.devolucion.time}`);
+      const B = new Date(`${b.entrega?.date ?? b.devolucion.date}T${b.entrega?.time ?? b.devolucion.time}`);
+      return A.getTime() - B.getTime();
+    });
 
-  return {
-    name: activo.name,
-    code: activo.code,
-    timeline,
-  };
-}
+    return {
+      name: activo.name,
+      code: activo.code,
+      timeline,
+    };
+  }
 
 }
 

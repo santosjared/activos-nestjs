@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateBitacoraDto } from './dto/create-bitacora.dto';
-import { UpdateBitacoraDto } from './dto/update-bitacora.dto';
 import { FiltersBitacoraDto } from './dto/filters-bitacora.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Bitacoras, BitacorasDocument } from './schema/bitacoras.schema';
