@@ -12,6 +12,8 @@ import { Users, UsersDocument } from 'src/users/schema/users.schema';
 import { Contable, ContableDocument } from 'src/contable/schema/contable.schema';
 import { SubCategory, SubCateGoryDocument } from 'src/contable/schema/sub-category.schema';
 import { DisableEnamebleDto } from './dto/disbled-enable.dto';
+import { Entrega, EntregaDocument } from 'src/entrega/schema/entrega.schema';
+import { Devolucion, DevolucionDocument } from 'src/devolucion/schema/devolucion.schema';
 
 @Injectable()
 export class ActivosService {
@@ -22,6 +24,8 @@ export class ActivosService {
     @InjectModel(Status.name) private readonly statusModel: Model<StatusDocument>,
     @InjectModel(Location.name) private readonly locationModel: Model<locationDocument>,
     @InjectModel(Users.name) private readonly UsersModel: Model<UsersDocument>,
+    @InjectModel(Entrega.name) private readonly entregaModel:Model<EntregaDocument>,
+    @InjectModel(Devolucion.name) private readonly devolucionModel:Model<DevolucionDocument>
   ) { }
   async create(createActivoDto: CreateActivoDto) {
     const data = { ...createActivoDto };
@@ -398,4 +402,65 @@ async enableActivo(id: string) {
 
     return { result, total };
   }
+
+async trazabilidad(id: string) {
+  const activo = await this.activosModel.findById(id);
+
+  if (!activo) throw new NotFoundException("Activo no encontrado");
+
+  const [entregados, devueltos] = await Promise.all([
+    this.entregaModel
+      .find({ activos: id })
+      .populate('location')
+      .sort({ date: 1, time: 1 }),
+
+    this.devolucionModel
+      .find({ activos: id })
+      .sort({ date: 1, time: 1 }),
+  ]);
+
+  const map = new Map();
+  for (const e of entregados) {
+    map.set(e.code, {
+      code: e.code,
+      entrega: {
+        date: e.date,
+        time: e.time,
+        location: e.location?.name ?? null,
+      },
+      devolucion: null
+    });
+  }
+  for (const d of devueltos) {
+    if (map.has(d.code)) {
+      map.get(d.code).devolucion = {
+        date: d.date,
+        time: d.time,
+      };
+    } else {
+      map.set(d.code, {
+        code: d.code,
+        entrega: null,
+        devolucion: {
+          date: d.date,
+          time: d.time,
+        }
+      });
+    }
+  }
+  const timeline = Array.from(map.values()).sort((a, b) => {
+    const A = new Date(`${a.entrega?.date ?? a.devolucion.date}T${a.entrega?.time ?? a.devolucion.time}`);
+    const B = new Date(`${b.entrega?.date ?? b.devolucion.date}T${b.entrega?.time ?? b.devolucion.time}`);
+    return A.getTime() - B.getTime();
+  });
+
+  return {
+    name: activo.name,
+    code: activo.code,
+    timeline,
+  };
 }
+
+}
+
+

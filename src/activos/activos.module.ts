@@ -10,6 +10,8 @@ import { Entrega, EntregaSchema } from 'src/entrega/schema/entrega.schema';
 import { Contable, ContableSchema } from 'src/contable/schema/contable.schema';
 import { SubCategory, SubCategorySchema } from 'src/contable/schema/sub-category.schema';
 import { CaslModule } from 'src/casl/casl.module';
+import { EntregaModule } from 'src/entrega/entrega.module';
+import { DevolucionModule } from 'src/devolucion/devolucion.module';
 
 @Module({
   imports:[MongooseModule.forFeature([
@@ -20,9 +22,12 @@ import { CaslModule } from 'src/casl/casl.module';
     { name:Location.name, schema:LocationSchema},
     { name:Users.name, schema:UsersSchema},
   ]),
-  CaslModule
+  CaslModule,
+  EntregaModule,
+  DevolucionModule
 ],
   controllers: [ActivosController],
   providers: [ActivosService],
+  exports:[MongooseModule]
 })
 export class ActivosModule {}

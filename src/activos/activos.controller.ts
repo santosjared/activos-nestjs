@@ -110,6 +110,14 @@ export class ActivosController {
     const response = await this.activosService.avalaibles(filters);
     return response;
   }
+
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  // @CheckAbilities({ action: 'update', subject: 'activos' })
+  @Bitacora('Solicitar trazabilidad')
+  @Get('trazabildad/:id')
+  async trazabildad(@Param('id') id: string) {
+    return await this.activosService.trazabilidad(id);
+  }
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'update', subject: 'activos' })
   @Get(':id')

@@ -11,12 +11,12 @@ import { UserDto } from './dto/dto';
 import { Bitacora } from 'src/bitacoras/decorator/bitacora.decorator';
 
 @Controller('users')
-@ApiTags('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'create', subject: 'users' })
+  @Bitacora('Crear usuarios')
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
@@ -24,6 +24,7 @@ export class UsersController {
 
    @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'create', subject: 'entrega' })
+  @Bitacora('Selecionar usuarios')
   @Post('create')
   createUser(@Body() createUserDto: UserDto) {
     return this.usersService.createUser(createUserDto);
@@ -39,6 +40,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'create', subject: 'activos' })
+  @Bitacora('Selecionar usuarios')
   @Get('all-users')
   async allUserActive(@Query() filters: FiltersUsersDto) {
     return await this.usersService.allUsersActive(filters);
@@ -46,6 +48,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   // @CheckAbilities({ action: 'create', subject: 'users' })
+  @Bitacora('Selecionar grados')
   @Get('grades')
   async grades(@Query() filters: FiltersUsersDto) {
     return await this.usersService.grades(filters);
@@ -53,6 +56,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   // @CheckAbilities({ action: 'create', subject: 'users' })
+  @Bitacora('Verificar email del usuario')
   @Get('check-email/:email')
   async checkEmail(@Param('email') email: string) {
     return await this.usersService.checkEmail(email)
@@ -60,6 +64,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'create', subject: 'users' })
+  @Bitacora('Verificar el ci de usuario')
   @Get('check-ci/:ci')
   async checkCi(@Param('ci') ci: string) {
     return await this.usersService.checkCi(ci)
@@ -67,6 +72,7 @@ export class UsersController {
   
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   // @CheckAbilities({ action: 'create', subject: 'entrega' })
+  @Bitacora('Selecionar usuarios')
   @Get('allUsers')
   async allUsers(@Query() filters:FiltersUsersDto){
     return await this.usersService.allUsers(filters)
@@ -74,6 +80,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   // @CheckAbilities({ action: 'create', subject: 'entrega' })
+  @Bitacora('Selecionar usuarios')
   @Get(':id')
   async findOne(@Param('id') id:string){
     return await this.usersService.findOne(id)
@@ -81,6 +88,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'update', subject: 'users' })
+  @Bitacora('Actualizar usuarios')
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return await this.usersService.update(id, updateUserDto);
@@ -88,6 +96,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'dow', subject: 'users' })
+  @Bitacora('Dar de baja a usuario')
   @Delete('dow/:id')
   dow(@Param('id') id: string) {
     return this.usersService.dow(id);
@@ -95,6 +104,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'up', subject: 'users' })
+  @Bitacora('Dar de alta a usuario')
   @Delete('up/:id')
   up(@Param('id') id: string) {
     return this.usersService.up(id);

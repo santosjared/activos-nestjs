@@ -11,6 +11,7 @@ import { FiltersEntregaDto } from './dto/filters-activo.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 import { PermissionsGuard } from 'src/casl/guards/permissions.guard';
 import { CheckAbilities } from 'src/casl/decorators/permission.decorator'
+import { Bitacora } from 'src/bitacoras/decorator/bitacora.decorator';
 
 @Controller('entregas')
 export class EntregaController {
@@ -18,6 +19,7 @@ export class EntregaController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'create', subject: 'entrega' })
+  @Bitacora('Crear entrega')
   @UseInterceptors(
     FileInterceptor('document', {
       storage: diskStorage({
@@ -55,47 +57,65 @@ export class EntregaController {
   }
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Bitacora('seleccionar entregas')
   @Get()
   findAll(@Query() filters: FiltersEntregaDto) {
     return this.entregaService.findAll(filters);
   }
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
+   @Bitacora('Seleccionar ubicacion')
   @Get('location')
   locations() {
     return this.entregaService.locations();
   }
+
   @UseGuards(JwtAuthGuard, PermissionsGuard)
+   @Bitacora('Seleccionar grados')
   @Get('grades')
   grades() {
     return this.entregaService.grades();
   }
+
   @UseGuards(JwtAuthGuard, PermissionsGuard)
+   @Bitacora('Seleccionar categorias')
   @Get('categories')
   categories() {
     return this.entregaService.categories();
   }
+  
   @UseGuards(JwtAuthGuard, PermissionsGuard)
+   @Bitacora('Seleccionar subcategorias')
   @Get('subcategories')
   subcategories() {
     return this.entregaService.subcategories();
   }
+
   @UseGuards(JwtAuthGuard, PermissionsGuard)
+   @Bitacora('Seleccionar estados de entrega')
   @Get('status')
   status() {
     return this.entregaService.status();
   }
+
   @UseGuards(JwtAuthGuard, PermissionsGuard)
+   @Bitacora('Seleccionar activos validos')
   @Get('activos-available')
   async findAvailables(@Query() filters: FiltersEntregaDto) {
     return await this.entregaService.findAvailables(filters)
   }
+
+
   @UseGuards(JwtAuthGuard, PermissionsGuard)
+   @Bitacora('Solicitar codigo de entrega')
   @Get('code')
   async getCode() {
     return await this.entregaService.generateUniqueCode()
   }
+
+
   @UseGuards(JwtAuthGuard, PermissionsGuard)
+   @Bitacora('Buscar por codigo los entregas')
   @Get(':code')
   async findOne(@Param('code') code: string) {
     return await this.entregaService.findOne(code);
@@ -103,6 +123,7 @@ export class EntregaController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'update', subject: 'entrega' })
+   @Bitacora('Actua;izar entregas')
   @UseInterceptors(
     FileInterceptor('document', {
       storage: diskStorage({
@@ -143,6 +164,7 @@ export class EntregaController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'delete', subject: 'entrega' })
+   @Bitacora('Eliminar entregas')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.entregaService.remove(id);

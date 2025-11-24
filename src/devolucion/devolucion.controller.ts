@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 import { PermissionsGuard } from 'src/casl/guards/permissions.guard';
 import { CheckAbilities } from 'src/casl/decorators/permission.decorator'
+import { Bitacora } from 'src/bitacoras/decorator/bitacora.decorator';
 
 @Controller('devolucion')
 export class DevolucionController {
@@ -48,6 +49,7 @@ export class DevolucionController {
       },
     }),
   )
+  @Bitacora('Crear devolucion')
   @Post()
   async create(@Body() createDevolucionDto: CreateDevolucionDto, @UploadedFile() file: Express.Multer.File) {
     if (file) {
@@ -58,6 +60,7 @@ export class DevolucionController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'read', subject: 'devolucion' })
+  @Bitacora('Seleciona devolucion')
   @Get()
   async findAll(@Query() filters: FiltersDevolucionDto) {
     return await this.devolucionService.findAll(filters);
@@ -65,6 +68,7 @@ export class DevolucionController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   // @CheckAbilities({ action: 'create', subject: 'devolucion' })
+  @Bitacora('Selecionar entregar')
   @Get('entregas')
   async finEntregas(@Query() filters: FiltersDevolucionDto) {
     return await this.devolucionService.findEntregas(filters);
@@ -72,6 +76,7 @@ export class DevolucionController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   // @CheckAbilities({ action: 'create', subject: 'devolucion' })
+  @Bitacora('Selecionar opciones')
   @Get('options')
   async options() {
     return await this.devolucionService.options();
@@ -79,12 +84,14 @@ export class DevolucionController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   // @CheckAbilities({ action: 'create', subject: 'devolucion' })
+  @Bitacora('solicitar codigo devolucion')
   @Get(':code')
   findOne(@Param('code') code: string) {
     return this.devolucionService.findOne(code);
   }
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   // @CheckAbilities({ action: 'create', subject: 'devolucion' })
+  @Bitacora('buscar entrega')
   @Get('entregas/:id')
   findOneEntrega(@Param('id') id: string) {
     return this.devolucionService.findOneEntrega(id);
@@ -92,6 +99,7 @@ export class DevolucionController {
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @CheckAbilities({ action: 'update', subject: 'devolucion' })
+  @Bitacora('Actualizar devolucion')
   @UseInterceptors(
     FileInterceptor('document', {
       storage: diskStorage({

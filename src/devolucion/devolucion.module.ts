@@ -29,5 +29,6 @@ import { CaslModule } from 'src/casl/casl.module';
    ],
   controllers: [DevolucionController],
   providers: [DevolucionService],
+  exports:[MongooseModule]
 })
 export class DevolucionModule {}

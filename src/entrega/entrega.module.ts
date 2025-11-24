@@ -27,5 +27,6 @@ import { CaslModule } from 'src/casl/casl.module';
   ],
   controllers: [EntregaController],
   providers: [EntregaService],
+  exports:[MongooseModule]
 })
 export class EntregaModule {}

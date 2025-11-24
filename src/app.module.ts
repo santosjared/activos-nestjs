@@ -16,6 +16,7 @@ import { DepreciacionModule } from './depreciacion/depreciacion.module';
 import { BitacorasModule } from './bitacoras/bitacoras.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { BitacoraInterceptor } from './bitacoras/interceptor/bitacora.interceptor';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -40,6 +41,7 @@ import { BitacoraInterceptor } from './bitacoras/interceptor/bitacora.intercepto
     DevolucionModule,
     DepreciacionModule,
     BitacorasModule,
+    DashboardModule
   ],
   providers:[
     {

@@ -15,6 +15,7 @@ export class StatusSeed {
                 { name: 'Bueno' },
                 { name: 'Regular' },
                 { name: 'Malo' },
+                { name: 'Mantenimiento'}
             ]
 
             const addStatus = status.map((statu) => ({

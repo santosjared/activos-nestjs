@@ -11,7 +11,7 @@ import { ConfigService } from '@nestjs/config';
 export class AuthService {
   constructor(@InjectModel(Auth.name) private readonly authModel: Model<AuthDocument>,
     private jwtService: JwtService,
-    private configService: ConfigService
+    private configService: ConfigService,
   ) { }
   async login(credentialsAuthDto: CreadencialesAuthDto) {
     const { rememberMe=true, email, password } = credentialsAuthDto;
