@@ -148,7 +148,7 @@ export class ActivosController {
   @UseInterceptors(
     FileInterceptor('image', {
       storage: diskStorage({
-        destination: (req, file, cb) => {
+        destination: (_, file, cb) => {
           let folderPath = '';
 
           if (file.fieldname === 'image') {
@@ -164,7 +164,7 @@ export class ActivosController {
           cb(null, folderPath);
         },
 
-        filename: (req, file, cb) => {
+        filename: (_, file, cb) => {
           const uniqueSuffix = `${Date.now()}-${uuidv4()}`;
           const extension = extname(file.originalname);
           cb(null, uniqueSuffix + extension);

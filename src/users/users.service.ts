@@ -159,7 +159,7 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    console.log(id)
+    
     return await this.userModel.findOne({auth:id || ''})
     .select('name lastName ci grade _id')
     .populate({ path: 'grade', select: 'name _id' });
